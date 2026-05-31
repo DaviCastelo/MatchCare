@@ -18,7 +18,7 @@ export default async function TherapistNotificationsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h1>
         {unread.length > 0 && (
           <form action={async () => {
             'use server'

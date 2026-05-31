@@ -27,7 +27,7 @@ export default async function TherapistSchedulePage({
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h1>
 
       {hasNoAvailability && (
         <Alert className="border-amber-200 bg-amber-50">

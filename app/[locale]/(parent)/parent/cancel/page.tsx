@@ -40,7 +40,7 @@ export default async function CancelSessionPage({
 
   return (
     <div className="max-w-lg space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h1>
       <Card>
         <CardContent className="pt-6">
           <form action={handleCancel} className="space-y-4">

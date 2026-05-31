@@ -46,7 +46,7 @@ export default async function TherapistDetailPage({
   return (
     <div className="max-w-2xl space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           {therapist.profile?.full_name ?? therapist.email}
         </h1>
         <Badge variant={isPending ? 'secondary' : 'default'}

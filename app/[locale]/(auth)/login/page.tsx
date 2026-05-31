@@ -3,13 +3,13 @@
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useActionState } from 'react'
+import { MatchCareLogo } from '@/components/app/matchcare-logo'
 import { login } from '@/app/actions/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Heart } from 'lucide-react'
 
 export default function LoginPage() {
   const t = useTranslations('auth')
@@ -20,12 +20,10 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-teal-50 p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1 text-center">
-          <div className="flex items-center justify-center mb-2">
-            <div className="w-10 h-10 bg-teal-600 rounded-xl flex items-center justify-center">
-              <Heart className="w-5 h-5 text-white" />
-            </div>
+          <div className="flex items-center justify-center mb-2 px-2">
+            <MatchCareLogo className="max-w-[240px]" priority />
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-900">{tc('appName')}</CardTitle>
+          <CardTitle className="sr-only">{tc('appName')}</CardTitle>
           <CardDescription className="text-gray-500">{t('login')}</CardDescription>
         </CardHeader>
         <CardContent>

@@ -42,7 +42,7 @@ export default async function ClientDetailPage({
   return (
     <div className="max-w-2xl space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">{client.full_name}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{client.full_name}</h1>
         <Badge variant="outline">Score {client.behavior_score}</Badge>
       </div>
 

@@ -51,7 +51,7 @@ export default async function NewTherapistPage({
 
   return (
     <div className="max-w-xl space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">{t('new')}</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('new')}</h1>
       <Card>
         <CardContent className="pt-6">
           <form action={handleCreate} className="space-y-4">

@@ -19,7 +19,7 @@ export default async function ClientsPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h1>
         <Link href={`/${locale}/admin/clients/new`}>
           <Button className="bg-teal-600 hover:bg-teal-700 gap-2">
             <Plus className="w-4 h-4" />

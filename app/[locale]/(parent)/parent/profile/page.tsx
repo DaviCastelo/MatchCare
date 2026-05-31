@@ -33,7 +33,7 @@ export default async function ParentProfilePage({
   if (!client) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold text-gray-900">{tp('title')}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{tp('title')}</h1>
         <p className="text-gray-500">No child profile found. Please contact your administrator.</p>
       </div>
     )
@@ -51,7 +51,7 @@ export default async function ParentProfilePage({
 
   return (
     <div className="max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">{tp('title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{tp('title')}</h1>
 
       <Card>
         <CardHeader><CardTitle className="text-base">{client.full_name}</CardTitle></CardHeader>
