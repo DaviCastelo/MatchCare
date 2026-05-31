@@ -34,8 +34,7 @@ export default async function LocaleLayout({
 
   // Read theme from cookie to apply class server-side (no flash)
   const cookieStore = await cookies()
-  const themeCookie = cookieStore.get('theme')?.value ?? 'system'
-  // We can't know system preference on server, so just apply if explicitly dark
+  const themeCookie = cookieStore.get('theme')?.value ?? 'light'
   const isDark = themeCookie === 'dark'
 
   return (

@@ -4,10 +4,10 @@ import { useState, useEffect, useTransition } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Globe, Check, Sun, Moon, Monitor } from 'lucide-react'
+import { Globe, Check, Sun, Moon } from 'lucide-react'
 import { toast } from 'sonner'
 
-type Theme = 'light' | 'dark' | 'system'
+type Theme = 'light' | 'dark'
 
 const LANGUAGES = [
   { code: 'en',    label: 'English',            badge: 'EN', color: 'bg-blue-600' },
@@ -16,13 +16,13 @@ const LANGUAGES = [
 ]
 
 function getThemeCookie(): Theme {
-  if (typeof document === 'undefined') return 'system'
-  return (document.cookie.split(';').find(c => c.trim().startsWith('theme='))?.split('=')?.[1] as Theme) ?? 'system'
+  if (typeof document === 'undefined') return 'light'
+  const value = document.cookie.split(';').find(c => c.trim().startsWith('theme='))?.split('=')?.[1]
+  return value === 'dark' ? 'dark' : 'light'
 }
 
 function applyTheme(theme: Theme) {
-  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
-  document.documentElement.classList.toggle('dark', isDark)
+  document.documentElement.classList.toggle('dark', theme === 'dark')
   document.cookie = `theme=${theme};path=/;max-age=31536000;SameSite=Lax`
 }
 
@@ -38,7 +38,7 @@ export function SettingsPanel({
   const router = useRouter()
   const pathname = usePathname()
   const [selectedLang, setSelectedLang] = useState(savedLanguage || currentLocale)
-  const [theme, setTheme] = useState<Theme>('system')
+  const [theme, setTheme] = useState<Theme>('light')
   const [mounted, setMounted] = useState(false)
   const [isPending, startTransition] = useTransition()
 
@@ -78,7 +78,6 @@ export function SettingsPanel({
     appearance: currentLocale === 'pt-BR' ? 'Aparência' : currentLocale === 'es' ? 'Apariencia' : 'Appearance',
     light:  currentLocale === 'pt-BR' ? 'Claro'  : currentLocale === 'es' ? 'Claro'   : 'Light',
     dark:   currentLocale === 'pt-BR' ? 'Escuro' : currentLocale === 'es' ? 'Oscuro'  : 'Dark',
-    system: currentLocale === 'pt-BR' ? 'Sistema': currentLocale === 'es' ? 'Sistema' : 'System',
     save:   currentLocale === 'pt-BR' ? 'Salvar alterações' : currentLocale === 'es' ? 'Guardar cambios' : 'Save changes',
     saving: currentLocale === 'pt-BR' ? 'Salvando...' : currentLocale === 'es' ? 'Guardando...' : 'Saving...',
   }
@@ -127,11 +126,10 @@ export function SettingsPanel({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {([
-                { value: 'light',  icon: <Sun className="w-5 h-5" />,     label: labels.light  },
-                { value: 'dark',   icon: <Moon className="w-5 h-5" />,    label: labels.dark   },
-                { value: 'system', icon: <Monitor className="w-5 h-5" />, label: labels.system },
+                { value: 'light', icon: <Sun className="w-5 h-5" />, label: labels.light },
+                { value: 'dark', icon: <Moon className="w-5 h-5" />, label: labels.dark },
               ] as { value: Theme; icon: React.ReactNode; label: string }[]).map(({ value, icon, label }) => (
                 <button
                   key={value}

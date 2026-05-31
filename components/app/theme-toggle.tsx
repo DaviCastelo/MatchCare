@@ -1,41 +1,37 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Sun, Moon, Monitor } from 'lucide-react'
+import { Sun, Moon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-type Theme = 'light' | 'dark' | 'system'
+type Theme = 'light' | 'dark'
 
-function getSystemTheme(): 'light' | 'dark' {
-  if (typeof window === 'undefined') return 'light'
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+function normalizeTheme(value: string | undefined): Theme {
+  return value === 'dark' ? 'dark' : 'light'
 }
 
 function applyTheme(theme: Theme) {
-  const root = document.documentElement
-  const resolved = theme === 'system' ? getSystemTheme() : theme
-  root.classList.toggle('dark', resolved === 'dark')
+  document.documentElement.classList.toggle('dark', theme === 'dark')
   document.cookie = `theme=${theme};path=/;max-age=31536000;SameSite=Lax`
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>('system')
+  const [theme, setTheme] = useState<Theme>('light')
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    // Read stored theme
     const stored = document.cookie
       .split(';')
-      .find(c => c.trim().startsWith('theme='))
-      ?.split('=')?.[1] as Theme | undefined
-    const initial = stored ?? 'system'
+      .find((c) => c.trim().startsWith('theme='))
+      ?.split('=')?.[1]
+    const initial = normalizeTheme(stored)
     setTheme(initial)
     applyTheme(initial)
     setMounted(true)
   }, [])
 
-  function cycle() {
-    const next: Theme = theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'
+  function toggle() {
+    const next: Theme = theme === 'light' ? 'dark' : 'light'
     setTheme(next)
     applyTheme(next)
   }
@@ -46,15 +42,13 @@ export function ThemeToggle() {
     <Button
       variant="ghost"
       size="sm"
-      onClick={cycle}
+      onClick={toggle}
       title={`Theme: ${theme}`}
       className="w-full justify-start gap-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
     >
-      {theme === 'light'  ? <Sun className="w-4 h-4" />     :
-       theme === 'dark'   ? <Moon className="w-4 h-4" />    :
-                            <Monitor className="w-4 h-4" />}
+      {theme === 'light' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
       <span className="text-sm font-medium">
-        {theme === 'light' ? 'Light' : theme === 'dark' ? 'Dark' : 'System'}
+        {theme === 'light' ? 'Light' : 'Dark'}
       </span>
     </Button>
   )

@@ -1,12 +1,9 @@
 import { getTranslations } from 'next-intl/server'
-import { getMySessions } from '@/app/actions/sessions'
+import { getMySessionsForCalendar } from '@/app/actions/sessions'
+import { createClient } from '@/lib/supabase/server'
+import { ScheduleCalendarView } from '@/components/sessions/schedule-calendar-view'
 import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Calendar } from 'lucide-react'
-import Link from 'next/link'
-
-const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 export default async function ParentSchedulePage({
   params,
@@ -15,7 +12,43 @@ export default async function ParentSchedulePage({
 }) {
   const { locale } = await params
   const t = await getTranslations('sessions')
-  const sessions = await getMySessions()
+  const tc = await getTranslations('common')
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const sessions = await getMySessionsForCalendar()
+
+  const labels = {
+    previousMonth: t('previousMonth'),
+    nextMonth: t('nextMonth'),
+    daySheetTitle: t('daySheetTitle'),
+    noSessionsOnDay: t('noSessionsOnDay'),
+    selectTime: t('selectTime'),
+    cancelled: t('cancelled'),
+    client: t('client'),
+    therapist: t('therapist'),
+    detailTitle: t('detailTitle'),
+    therapistInfo: t('therapistInfo'),
+    patientInfo: t('patientInfo'),
+    sessionInfo: t('sessionInfo'),
+    name: tc('name'),
+    phone: tc('phone'),
+    email: tc('email'),
+    city: tc('city'),
+    experience: t('experience'),
+    age: tc('age'),
+    parentPhone: t('parentPhone'),
+    location: t('location'),
+    time: t('time'),
+    notes: t('notes'),
+    cancelSession: t('cancelSession'),
+    cancelReason: t('cancelReason'),
+    cancelReasonPlaceholder: t('cancelReasonPlaceholder'),
+    cancelSubmit: t('cancelSubmit'),
+    years: t('years'),
+    back: t('back'),
+  }
 
   return (
     <div className="space-y-6">
@@ -29,29 +62,13 @@ export default async function ParentSchedulePage({
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
-          {sessions.map((session) => (
-            <Card key={session.id}>
-              <CardContent className="flex items-center gap-4 py-4">
-                <div className="flex flex-col items-center min-w-[72px]">
-                  <span className="text-sm font-semibold text-teal-600">{DAYS[session.day_of_week]}</span>
-                  <span className="text-xs text-gray-500">{session.start_time}–{session.end_time}</span>
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900">
-                    {(session.therapist as { profile?: { full_name: string } } | null)?.profile?.full_name ?? 'Therapist'}
-                  </p>
-                  <p className="text-sm text-gray-500">{session.location}</p>
-                </div>
-                <Link href={`/${locale}/parent/cancel?sessionId=${session.id}`}>
-                  <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
-                    Cancel
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <ScheduleCalendarView
+          sessions={sessions}
+          locale={locale}
+          role="parent"
+          userId={user?.id}
+          labels={labels}
+        />
       )}
     </div>
   )

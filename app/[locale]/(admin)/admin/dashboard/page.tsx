@@ -27,29 +27,29 @@ export default async function DashboardPage({
   ])
 
   const stats = [
-    { label: t('totalClients'), value: totalClients ?? 0, icon: <Users className="w-5 h-5 text-teal-600" />, href: `/${locale}/admin/clients` },
-    { label: t('totalTherapists'), value: totalTherapists ?? 0, icon: <UserCheck className="w-5 h-5 text-blue-600" />, href: `/${locale}/admin/therapists` },
-    { label: t('activeSessions'), value: activeSessions ?? 0, icon: <Calendar className="w-5 h-5 text-green-600" />, href: `/${locale}/admin/sessions` },
-    { label: t('pendingApprovals'), value: pendingApprovals ?? 0, icon: <Clock className="w-5 h-5 text-amber-600" />, href: `/${locale}/admin/therapists?tab=pending` },
+    { label: t('totalClients'), value: totalClients ?? 0, icon: <Users className="w-5 h-5 text-teal-600 dark:text-teal-400" />, href: `/${locale}/admin/clients` },
+    { label: t('totalTherapists'), value: totalTherapists ?? 0, icon: <UserCheck className="w-5 h-5 text-blue-600 dark:text-blue-400" />, href: `/${locale}/admin/therapists` },
+    { label: t('activeSessions'), value: activeSessions ?? 0, icon: <Calendar className="w-5 h-5 text-green-600 dark:text-green-400" />, href: `/${locale}/admin/sessions` },
+    { label: t('pendingApprovals'), value: pendingApprovals ?? 0, icon: <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />, href: `/${locale}/admin/therapists?tab=pending` },
   ]
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h1>
-        <p className="text-gray-500 mt-1">Welcome back, Admin</p>
+        <p className="text-gray-500 dark:text-gray-400 mt-1">Welcome back, Admin</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {stats.map((stat) => (
           <Link key={stat.label} href={stat.href}>
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer dark:bg-gray-900 dark:border-gray-800">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">{stat.label}</CardTitle>
+                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.label}</CardTitle>
                 {stat.icon}
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</div>
               </CardContent>
             </Card>
           </Link>
@@ -57,10 +57,10 @@ export default async function DashboardPage({
       </div>
 
       {(pendingApprovals ?? 0) > 0 && (
-        <Card className="border-amber-200 bg-amber-50">
+        <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40">
           <CardContent className="flex items-center gap-3 pt-4">
-            <Clock className="w-5 h-5 text-amber-600" />
-            <span className="text-amber-800 font-medium">
+            <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            <span className="text-amber-800 dark:text-amber-200 font-medium">
               {pendingApprovals} therapist{(pendingApprovals ?? 0) > 1 ? 's' : ''} waiting for approval
             </span>
             <Link href={`/${locale}/admin/therapists?tab=pending`} className="ml-auto">
