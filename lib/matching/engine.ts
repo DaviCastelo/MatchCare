@@ -44,10 +44,29 @@ export function findEligibleTherapists(
   }
 }
 
+// Block sizes (in hours) the scheduler will try, from longest to shortest.
+// Longer blocks are preferred; shorter ones are the fallback for tight availability.
+const BLOCK_SIZES = [4, 3, 2, 1]
+
+// Builds the candidate (sessionCount × hoursEach) distributions that sum exactly
+// to `weeklyHours` and give every selected therapist at least one session.
+// e.g. weeklyHours=12, 2 therapists → [3×4h, 4×3h, 6×2h, 12×1h]
+//      weeklyHours=4,  2 therapists → [2×2h, 4×1h]
+export function buildScheduleCandidates(
+  weeklyHours: number,
+  therapistCount: number
+): { sessionCount: number; hoursEach: number }[] {
+  return BLOCK_SIZES.filter(
+    (block) => weeklyHours % block === 0 && weeklyHours / block >= therapistCount
+  ).map((block) => ({ sessionCount: weeklyHours / block, hoursEach: block }))
+}
+
 // Generates a distributed weekly schedule across 2-3 selected therapists.
 // Each therapist gets at least 1 session; remaining sessions go to those who need more hours.
+// `weeklyHours` is the client's configurable weekly load (defaults to 12 for back-compat).
 export function generateMultiTherapistSchedule(
-  selectedResults: MatchResult[]
+  selectedResults: MatchResult[],
+  weeklyHours = 12
 ): ScheduleResult {
   if (selectedResults.length < 2) {
     return { ok: false, reason: 'min_therapist_count_not_met' }
@@ -57,11 +76,11 @@ export function generateMultiTherapistSchedule(
   const anyEmpty = selectedResults.some((r) => totalOverlapHours(r.overlappingSlots) === 0)
   if (anyEmpty) return { ok: false, reason: 'no_valid_slots' }
 
-  // Try 3 sessions × 4h, then 4 sessions × 3h
-  for (const { sessionCount, hoursEach } of [
-    { sessionCount: 3, hoursEach: 4 },
-    { sessionCount: 4, hoursEach: 3 },
-  ]) {
+  // Try longer session blocks first, falling back to shorter ones for tight availability
+  for (const { sessionCount, hoursEach } of buildScheduleCandidates(
+    weeklyHours,
+    selectedResults.length
+  )) {
     const assignments = tryDistribute(selectedResults, sessionCount, hoursEach)
     if (assignments) {
       const totalWeeklyHours = assignments.reduce((acc, a) => acc + a.weeklyHours, 0)
@@ -74,7 +93,7 @@ export function generateMultiTherapistSchedule(
     (acc, r) => acc + totalOverlapHours(r.overlappingSlots),
     0
   )
-  if (totalAvailable < 12) return { ok: false, reason: 'insufficient_hours' }
+  if (totalAvailable < weeklyHours) return { ok: false, reason: 'insufficient_hours' }
   return { ok: false, reason: 'clinic_hours_conflict' }
 }
 

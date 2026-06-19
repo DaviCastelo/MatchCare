@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
@@ -46,43 +47,51 @@ export default async function TherapistsPage({
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="approved" className="space-y-3 mt-4">
+        <TabsContent value="approved" className="mt-4">
           {approved.length === 0 ? (
-            <Card><CardContent className="py-12 text-center text-gray-400">{t('noTherapists')}</CardContent></Card>
-          ) : approved.map((therapist) => (
+            <Card><CardContent className="py-12 text-center text-muted-foreground">{t('noTherapists')}</CardContent></Card>
+          ) : (
+          <div className="grid gap-4">
+            {approved.map((therapist) => (
             <Link key={therapist.id} href={`/${locale}/admin/therapists/${therapist.id}`}>
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="hover:shadow-md hover:ring-teal-500/30 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
                 <CardContent className="flex items-center gap-4 py-4">
-                  <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center">
-                    <span className="text-teal-700 font-semibold">
+                  <Avatar size="lg" className="size-11">
+                    <AvatarImage src={therapist.profile?.avatar_url ?? undefined} alt={therapist.profile?.full_name ?? therapist.email} />
+                    <AvatarFallback className="bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300 font-semibold">
                       {(therapist.profile?.full_name ?? therapist.email).charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">{therapist.profile?.full_name ?? therapist.email}</p>
-                    <p className="text-sm text-gray-500">{therapist.city} · {therapist.years_of_experience}y exp · {therapist.language}</p>
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-foreground truncate">{therapist.profile?.full_name ?? therapist.email}</p>
+                    <p className="text-sm text-muted-foreground">{therapist.city} · {therapist.years_of_experience}y exp · {therapist.language}</p>
                   </div>
                   <Badge variant="outline">Score {therapist.professional_score}</Badge>
                 </CardContent>
               </Card>
             </Link>
-          ))}
+            ))}
+          </div>
+          )}
         </TabsContent>
 
-        <TabsContent value="pending" className="space-y-3 mt-4">
+        <TabsContent value="pending" className="mt-4">
           {pending.length === 0 ? (
-            <Card><CardContent className="py-12 text-center text-gray-400">No pending approvals</CardContent></Card>
-          ) : pending.map((therapist) => (
+            <Card><CardContent className="py-12 text-center text-muted-foreground">No pending approvals</CardContent></Card>
+          ) : (
+          <div className="grid gap-4">
+            {pending.map((therapist) => (
             <Card key={therapist.id}>
               <CardContent className="flex items-center gap-4 py-4">
-                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                  <span className="text-amber-700 font-semibold">
+                <Avatar size="lg" className="size-11">
+                  <AvatarImage src={therapist.profile?.avatar_url ?? undefined} alt={therapist.profile?.full_name ?? therapist.email} />
+                  <AvatarFallback className="bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 font-semibold">
                     {(therapist.profile?.full_name ?? therapist.email).charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900">{therapist.profile?.full_name ?? therapist.email}</p>
-                  <p className="text-sm text-gray-500">{therapist.email}</p>
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground truncate">{therapist.profile?.full_name ?? therapist.email}</p>
+                  <p className="text-sm text-muted-foreground">{therapist.email}</p>
                 </div>
                 <div className="flex gap-2">
                   <form action={async () => {
@@ -100,7 +109,9 @@ export default async function TherapistsPage({
                 </div>
               </CardContent>
             </Card>
-          ))}
+            ))}
+          </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>

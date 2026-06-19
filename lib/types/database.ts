@@ -10,6 +10,7 @@ export type Database = {
           full_name: string
           preferred_language: string
           approved: boolean
+          avatar_url: string | null
           created_at: string
         }
         Insert: Omit<Database['public']['Tables']['profiles']['Row'], 'created_at'>
@@ -45,6 +46,7 @@ export type Database = {
           language: string
           city: string
           preferred_session_location: 'Clinic' | 'School' | 'Home'
+          weekly_hours: number
           health_insurance: string | null
           notes: string | null
           created_by: string | null

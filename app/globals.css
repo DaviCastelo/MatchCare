@@ -128,3 +128,24 @@
     @apply font-sans;
   }
 }
+
+/* Ambient floating glow (used on auth screens) */
+@keyframes blob-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(24px, -28px) scale(1.06); }
+  66%      { transform: translate(-18px, 18px) scale(0.96); }
+}
+.animate-blob {
+  animation: blob-float 16s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Respect users who prefer less motion (a11y) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

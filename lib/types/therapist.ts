@@ -5,6 +5,7 @@ export type Therapist = Database['public']['Tables']['therapists']['Row'] & {
     full_name: string
     preferred_language: string
     approved: boolean
+    avatar_url?: string | null
   }
   availability?: TherapistSlot[]
 }

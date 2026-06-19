@@ -59,6 +59,7 @@ export default async function NewClientPage({
       language: formData.get('language') as string,
       city: formData.get('city') as string,
       preferred_session_location: formData.get('preferred_session_location') as 'Clinic' | 'School' | 'Home',
+      weekly_hours: Number(formData.get('weekly_hours')),
       health_insurance: (formData.get('health_insurance') as string) || null,
       notes: (formData.get('notes') as string) || null,
       parent_id: parentId,
@@ -113,6 +114,10 @@ export default async function NewClientPage({
               <div className="space-y-2">
                 <Label>{t('behaviorScore')} (1–9)</Label>
                 <Input name="behavior_score" type="number" min={1} max={9} required />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('weeklyHours')}</Label>
+                <Input name="weekly_hours" type="number" min={1} max={40} defaultValue={12} required />
               </div>
               <div className="space-y-2">
                 <Label>{t('sessionLocation')}</Label>

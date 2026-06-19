@@ -24,7 +24,7 @@ export async function runMatch(clientId: string): Promise<MatchOutput> {
   const { data: therapists, error: therapistErr } = await supabase
     .from('therapists')
     .select(
-      '*, profile:profiles(full_name, preferred_language, approved), availability:therapist_availability(*)'
+      '*, profile:profiles(full_name, preferred_language, approved, avatar_url), availability:therapist_availability(*)'
     )
   if (therapistErr) throw new Error('Failed to load therapists')
 
@@ -104,7 +104,8 @@ export async function getScheduleForTherapists(
     }]
   })
 
-  return generateMultiTherapistSchedule(selectedResults)
+  const weeklyHours = (client as Client).weekly_hours ?? 12
+  return generateMultiTherapistSchedule(selectedResults, weeklyHours)
 }
 
 export async function confirmMatch(clientId: string, scheduleResult: ScheduleResult) {

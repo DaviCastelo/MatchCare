@@ -16,6 +16,7 @@ export const baseClient: Client = {
   language: 'pt-BR',
   city: 'São Paulo',
   preferred_session_location: 'Clinic',
+  weekly_hours: 12,
   health_insurance: null,
   notes: null,
   created_by: null,

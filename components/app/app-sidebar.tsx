@@ -22,14 +22,22 @@ function NavLink({ item }: { item: NavItem }) {
   return (
     <Link
       href={item.href}
+      aria-current={active ? 'page' : undefined}
       className={cn(
-        'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+        'group relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200',
         active
-          ? 'bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300'
+          ? 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300'
           : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'
       )}
     >
-      {item.icon}
+      {/* active accent bar */}
+      <span
+        className={cn(
+          'absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-teal-500 transition-all duration-200',
+          active ? 'opacity-100' : 'opacity-0 -translate-x-1'
+        )}
+      />
+      <span className="transition-transform duration-200 group-hover:scale-110">{item.icon}</span>
       {item.label}
     </Link>
   )
@@ -43,6 +51,7 @@ function SidebarShell({
   settingsHref: string
 }) {
   const t = useTranslations('common')
+  const tNav = useTranslations('nav')
   const pathname = usePathname()
 
   return (
@@ -72,16 +81,16 @@ function SidebarShell({
           )}
         >
           <Settings className="w-4 h-4" />
-          {t('appName') === 'MatchCare' ? 'Settings' : 'Configurações'}
+          {tNav('settings')}
         </Link>
         <form action={logout}>
           <Button
             variant="ghost"
             type="submit"
-            className="w-full justify-start gap-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="group w-full justify-start gap-3 text-gray-600 dark:text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-red-400"
           >
-            <LogOut className="w-4 h-4" />
-            {t('appName') === 'MatchCare' ? 'Sign Out' : 'Sair'}
+            <LogOut className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
+            {t('signOut')}
           </Button>
         </form>
       </div>

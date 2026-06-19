@@ -8,7 +8,7 @@ export async function getTherapists(): Promise<Therapist[]> {
   const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('therapists')
-    .select('*, profile:profiles(full_name, preferred_language, approved), availability:therapist_availability(*)')
+    .select('*, profile:profiles(full_name, preferred_language, approved, avatar_url), availability:therapist_availability(*)')
     .order('created_at', { ascending: false })
   if (error) throw error
   return (data ?? []) as unknown as Therapist[]
@@ -18,7 +18,7 @@ export async function getTherapist(id: string): Promise<Therapist> {
   const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('therapists')
-    .select('*, profile:profiles(full_name, preferred_language, approved), availability:therapist_availability(*)')
+    .select('*, profile:profiles(full_name, preferred_language, approved, avatar_url), availability:therapist_availability(*)')
     .eq('id', id)
     .single()
   if (error) throw error
@@ -88,7 +88,7 @@ export async function getMyTherapistProfile(): Promise<Therapist> {
   const adminClient = createAdminClient()
   const { data, error } = await adminClient
     .from('therapists')
-    .select('*, profile:profiles(full_name, preferred_language), availability:therapist_availability(*)')
+    .select('*, profile:profiles(full_name, preferred_language, avatar_url), availability:therapist_availability(*)')
     .eq('id', user.id)
     .single()
   if (error) throw error

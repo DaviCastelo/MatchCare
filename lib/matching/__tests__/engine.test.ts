@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { findEligibleTherapists, generateMultiTherapistSchedule } from '../engine'
+import {
+  findEligibleTherapists,
+  generateMultiTherapistSchedule,
+  buildScheduleCandidates,
+} from '../engine'
 import {
   baseClient,
   therapistA,
@@ -231,6 +235,98 @@ describe('generateMultiTherapistSchedule', () => {
     expect(result.ok).toBe(false)
     if (result.ok) return
     expect(result.reason).toBe('no_valid_slots')
+  })
+})
+
+// ─── Configurable weekly load ────────────────────────────────────────────────
+
+describe('buildScheduleCandidates', () => {
+  it('builds 12h candidates for 2 therapists, longest block first', () => {
+    expect(buildScheduleCandidates(12, 2)).toEqual([
+      { sessionCount: 3, hoursEach: 4 },
+      { sessionCount: 4, hoursEach: 3 },
+      { sessionCount: 6, hoursEach: 2 },
+      { sessionCount: 12, hoursEach: 1 },
+    ])
+  })
+
+  it('drops blocks that cannot give every therapist a session', () => {
+    // 4h across 2 therapists: a 4h block (1 session) would starve the 2nd therapist
+    expect(buildScheduleCandidates(4, 2)).toEqual([
+      { sessionCount: 2, hoursEach: 2 },
+      { sessionCount: 4, hoursEach: 1 },
+    ])
+  })
+
+  it('returns no candidates when weekly load is below therapist count', () => {
+    expect(buildScheduleCandidates(1, 2)).toEqual([])
+  })
+})
+
+describe('generateMultiTherapistSchedule — configurable weekly hours', () => {
+  // Two therapists offering only 1-hour overlapping windows (the "Davi" case)
+  const shortWindows1 = {
+    ...therapistA,
+    id: 'sw-1',
+    availability: [
+      { id: 'sw1a', therapist_id: 'sw-1', day_of_week: 1, start_time: '15:00', end_time: '16:00' },
+      { id: 'sw1b', therapist_id: 'sw-1', day_of_week: 4, start_time: '15:00', end_time: '16:00' },
+    ],
+  }
+  const shortWindows2 = {
+    ...therapistB,
+    id: 'sw-2',
+    availability: [
+      { id: 'sw2a', therapist_id: 'sw-2', day_of_week: 2, start_time: '15:00', end_time: '16:00' },
+      { id: 'sw2b', therapist_id: 'sw-2', day_of_week: 3, start_time: '15:00', end_time: '16:00' },
+    ],
+  }
+
+  it('fits a 4h/week load into 1-hour windows by falling back to 1h blocks', () => {
+    const result = generateMultiTherapistSchedule(
+      [makeMatchResult(shortWindows1, 0), makeMatchResult(shortWindows2, 0)],
+      4
+    )
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.schedule.totalWeeklyHours).toBe(4)
+    // every assigned slot is exactly 1 hour
+    for (const a of result.schedule.assignments) {
+      for (const s of a.slots) {
+        expect(toMin(s.end_time) - toMin(s.start_time)).toBe(60)
+      }
+    }
+  })
+
+  it('honours a custom 6h/week load', () => {
+    const result = generateMultiTherapistSchedule(
+      [makeMatchResult(therapistA, 0), makeMatchResult(therapistB, 0)],
+      6
+    )
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.schedule.totalWeeklyHours).toBe(6)
+  })
+
+  it('defaults to a 12h/week load when weeklyHours is omitted', () => {
+    const result = generateMultiTherapistSchedule([
+      makeMatchResult(therapistA, 0),
+      makeMatchResult(therapistB, 0),
+    ])
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.schedule.totalWeeklyHours).toBe(12)
+  })
+
+  it('reports insufficient_hours relative to the configured load', () => {
+    // 4h of total overlap but a 12h load requested
+    const result = generateMultiTherapistSchedule(
+      [makeMatchResult(shortWindows1, 0), makeMatchResult(shortWindows2, 0)],
+      12
+    )
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+    expect(result.reason).toBe('insufficient_hours')
   })
 })
 

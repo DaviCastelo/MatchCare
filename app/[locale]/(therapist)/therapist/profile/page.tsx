@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { redirect } from 'next/navigation'
 import { AvailabilityEditor } from '@/components/app/availability-editor'
+import { AvatarUpload } from '@/components/app/avatar-upload'
 
 export default async function TherapistProfilePage({
   params,
@@ -38,6 +39,16 @@ export default async function TherapistProfilePage({
   return (
     <div className="max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{tp('title')}</h1>
+
+      <Card>
+        <CardHeader><CardTitle className="text-base">{tp('photo')}</CardTitle></CardHeader>
+        <CardContent>
+          <AvatarUpload
+            currentUrl={profile.profile?.avatar_url}
+            name={profile.profile?.full_name ?? profile.email}
+          />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader><CardTitle className="text-base">{tp('personalInfo')}</CardTitle></CardHeader>

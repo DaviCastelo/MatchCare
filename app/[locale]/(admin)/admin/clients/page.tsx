@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Plus, User } from 'lucide-react'
 
 export default async function ClientsPage({
@@ -36,19 +37,19 @@ export default async function ClientsPage({
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-3">
+        <div className="grid gap-4">
           {clients.map((client) => (
             <Link key={client.id} href={`/${locale}/admin/clients/${client.id}`}>
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="hover:shadow-md hover:ring-blue-500/30 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
                 <CardContent className="flex items-center gap-4 py-4">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                    <span className="text-blue-700 font-semibold text-sm">
+                  <Avatar size="lg" className="size-11">
+                    <AvatarFallback className="bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 font-semibold text-sm">
                       {client.full_name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900">{client.full_name}</p>
-                    <p className="text-sm text-gray-500">{client.city} · {client.age}y · {client.language}</p>
+                    <p className="font-medium text-foreground truncate">{client.full_name}</p>
+                    <p className="text-sm text-muted-foreground">{client.city} · {client.age}y · {client.language}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">
@@ -57,10 +58,10 @@ export default async function ClientsPage({
                     <Badge
                       className={
                         client.preferred_session_location === 'Clinic'
-                          ? 'bg-blue-100 text-blue-700'
+                          ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300'
                           : client.preferred_session_location === 'Home'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-purple-100 text-purple-700'
+                          ? 'bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-300'
+                          : 'bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300'
                       }
                       variant="secondary"
                     >

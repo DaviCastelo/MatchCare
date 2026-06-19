@@ -18,8 +18,7 @@ export default function RegisterPage() {
   const [state, formAction, isPending] = useActionState(register, null)
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-teal-50 p-4">
-      <Card className="w-full max-w-md shadow-lg">
+    <Card className="w-full max-w-md shadow-xl ring-foreground/[0.08] backdrop-blur-sm bg-card/90 animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-500">
         <CardHeader className="space-y-1 text-center">
           <div className="flex items-center justify-center mb-2 px-2">
             <MatchCareLogo className="max-w-[240px]" priority />
@@ -34,8 +33,8 @@ export default function RegisterPage() {
             </Alert>
           )}
           {state?.success && (
-            <Alert className="mb-4 border-green-200 bg-green-50">
-              <AlertDescription className="text-green-800">{t('registerSuccess')}</AlertDescription>
+            <Alert className="mb-4 border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/40">
+              <AlertDescription className="text-green-800 dark:text-green-300">{t('registerSuccess')}</AlertDescription>
             </Alert>
           )}
           <form action={formAction} className="space-y-4">
@@ -66,12 +65,12 @@ export default function RegisterPage() {
             <Button
               type="submit"
               disabled={isPending}
-              className="w-full bg-teal-600 hover:bg-teal-700"
+              className="w-full bg-teal-600 hover:bg-teal-700 transition-all duration-200 hover:shadow-lg hover:shadow-teal-600/25 active:scale-[0.99]"
             >
               {isPending ? tc('loading') : t('register')}
             </Button>
           </form>
-          <p className="text-center text-sm text-gray-500 mt-4">
+          <p className="text-center text-sm text-muted-foreground mt-4">
             {t('haveAccount')}{' '}
             <Link href="login" className="text-teal-600 hover:underline font-medium">
               {t('login')}
@@ -79,6 +78,5 @@ export default function RegisterPage() {
           </p>
         </CardContent>
       </Card>
-    </div>
   )
 }
