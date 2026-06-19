@@ -75,11 +75,24 @@ export type Database = {
         Insert: Omit<Database['public']['Tables']['client_availability']['Row'], 'id'>
         Update: Partial<Database['public']['Tables']['client_availability']['Insert']>
       }
+      client_therapist_assignments: {
+        Row: {
+          id: string
+          client_id: string
+          therapist_id: string
+          sessions_per_week: number
+          status: 'active' | 'ended'
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['client_therapist_assignments']['Row'], 'id' | 'created_at'>
+        Update: Partial<Database['public']['Tables']['client_therapist_assignments']['Insert']>
+      }
       sessions: {
         Row: {
           id: string
           client_id: string
           therapist_id: string
+          assignment_id: string | null
           location: 'Clinic' | 'School' | 'Home'
           day_of_week: number
           start_time: string

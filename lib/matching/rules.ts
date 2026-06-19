@@ -121,7 +121,8 @@ export const hardRules: HardRule[] = [
 export function computeScore(
   client: Client,
   therapist: Therapist,
-  slots: Slot[]
+  slots: Slot[],
+  therapistCurrentHours = 0
 ): { score: number; flags: MatchFlag[] } {
   let score = 0
   const flags: MatchFlag[] = []
@@ -144,6 +145,11 @@ export function computeScore(
   // Score proximity: closer to client behavior score = better
   const scoreDiff = Math.abs(therapist.professional_score - client.behavior_score)
   score += Math.max(0, 10 - scoreDiff * 2)
+
+  // Therapist load bonus: prefer therapists who still need hours toward 15h/week (+15 max)
+  // Therapist at 0h gets full +15; at 15h+ gets 0
+  const WEEKLY_TARGET = 15
+  score += Math.max(0, Math.round((1 - therapistCurrentHours / WEEKLY_TARGET) * 15))
 
   // Gender sensitivity warning
   if (

@@ -119,7 +119,9 @@
     "disqualified": "Desqualificados",
     "score": "Score de Match",
     "overlappingHours": "Horas Disponíveis",
-    "selectTherapist": "Selecionar Terapeuta",
+    "selectTherapistsHint": "Selecione 2–3 terapeutas",
+    "selectTherapists": "Selecione 2–3 terapeutas na etapa anterior",
+    "generateSchedule": "Gerar Agenda",
     "proposedSchedule": "Agenda Semanal Proposta",
     "confirmMatch": "Confirmar Match",
     "matchSuccess": "Match confirmado! Sessões criadas com sucesso.",
@@ -127,7 +129,9 @@
     "genderWarning": "Atenção de sensibilidade de gênero: revise este match antes de confirmar.",
     "scheduleError_insufficient_hours": "Horas sobrepostas insuficientes para montar uma agenda de 12h/semana.",
     "scheduleError_no_valid_slots": "Nenhum slot válido se sobrepõe entre cliente e terapeuta.",
-    "scheduleError_clinic_hours_conflict": "Os slots sobrepostos estão fora do horário de funcionamento da clínica."
+    "scheduleError_clinic_hours_conflict": "Os slots sobrepostos estão fora do horário de funcionamento da clínica.",
+    "scheduleError_min_therapist_count_not_met": "Não foi possível encontrar horários para 2+ terapeutas. Tente selecionar outros terapeutas.",
+    "scheduleError_therapist_capacity_exceeded": "Um ou mais terapeutas selecionados não têm capacidade restante esta semana."
   },
   "sessions": {
     "title": "Sessões",

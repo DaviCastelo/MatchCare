@@ -40,6 +40,7 @@ export type SessionChangeRequest = Database['public']['Tables']['session_change_
 export type SessionInsert = {
   client_id: string
   therapist_id: string
+  assignment_id?: string | null
   location: 'Clinic' | 'School' | 'Home'
   day_of_week: number
   start_time: string

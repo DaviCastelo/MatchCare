@@ -119,7 +119,9 @@
     "disqualified": "Disqualified",
     "score": "Match Score",
     "overlappingHours": "Available Hours",
-    "selectTherapist": "Select Therapist",
+    "selectTherapistsHint": "Select 2–3 therapists",
+    "selectTherapists": "Select 2–3 therapists from the previous step",
+    "generateSchedule": "Generate Schedule",
     "proposedSchedule": "Proposed Weekly Schedule",
     "confirmMatch": "Confirm Match",
     "matchSuccess": "Match confirmed! Sessions created successfully.",
@@ -127,7 +129,9 @@
     "genderWarning": "Gender sensitivity note: review this match before confirming.",
     "scheduleError_insufficient_hours": "Not enough overlapping hours to build a 12h/week schedule.",
     "scheduleError_no_valid_slots": "No valid time slots overlap between client and therapist.",
-    "scheduleError_clinic_hours_conflict": "Overlapping slots fall outside clinic operating hours."
+    "scheduleError_clinic_hours_conflict": "Overlapping slots fall outside clinic operating hours.",
+    "scheduleError_min_therapist_count_not_met": "Could not find valid slots for 2+ therapists. Try selecting different therapists.",
+    "scheduleError_therapist_capacity_exceeded": "One or more selected therapists has no remaining capacity this week."
   },
   "sessions": {
     "title": "Sessions",

@@ -17,6 +17,7 @@ export type MatchResult = {
   score: number
   overlappingSlots: Slot[]
   flags: MatchFlag[]
+  currentWeeklyHours: number // hours already scheduled across all clients this week
 }
 
 export type DisqualifiedEntry = {
@@ -29,6 +30,27 @@ export type MatchOutput = {
   disqualified: DisqualifiedEntry[]
 }
 
+// One therapist's share of the client's weekly schedule
+export type TherapistAssignment = {
+  therapist: Therapist
+  slots: Slot[]
+  weeklyHours: number
+}
+
+// Full distributed schedule across 2-3 therapists
+export type MultiTherapistSchedule = {
+  assignments: TherapistAssignment[]
+  totalWeeklyHours: number
+}
+
 export type ScheduleResult =
-  | { ok: true; schedule: WeeklySchedule }
-  | { ok: false; reason: 'insufficient_hours' | 'no_valid_slots' | 'clinic_hours_conflict' }
+  | { ok: true; schedule: MultiTherapistSchedule }
+  | {
+      ok: false
+      reason:
+        | 'insufficient_hours'
+        | 'no_valid_slots'
+        | 'clinic_hours_conflict'
+        | 'min_therapist_count_not_met'
+        | 'therapist_capacity_exceeded'
+    }

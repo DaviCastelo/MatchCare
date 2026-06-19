@@ -1,6 +1,12 @@
 import type { Client } from '@/lib/types/client'
 import type { Therapist } from '@/lib/types/therapist'
-import type { MatchOutput, ScheduleResult, Slot, WeeklySchedule } from '@/lib/types/matching'
+import type {
+  MatchOutput,
+  MatchResult,
+  ScheduleResult,
+  Slot,
+  TherapistAssignment,
+} from '@/lib/types/matching'
 import {
   hardRules,
   computeScore,
@@ -9,9 +15,11 @@ import {
   totalOverlapHours,
 } from './rules'
 
+// therapistHoursMap: therapistId → hours already scheduled this week (across all clients)
 export function findEligibleTherapists(
   client: Client,
-  therapists: Therapist[] // pre-filtered by remaining weekly capacity (Server Action responsibility)
+  therapists: Therapist[],
+  therapistHoursMap: Record<string, number>
 ): MatchOutput {
   const eligible: MatchOutput['eligible'] = []
   const disqualified: MatchOutput['disqualified'] = []
@@ -24,9 +32,10 @@ export function findEligibleTherapists(
     }
 
     const overlappingSlots = computeOverlappingSlots(client, therapist)
-    const { score, flags } = computeScore(client, therapist, overlappingSlots)
+    const currentWeeklyHours = therapistHoursMap[therapist.id] ?? 0
+    const { score, flags } = computeScore(client, therapist, overlappingSlots, currentWeeklyHours)
 
-    eligible.push({ therapist, score, overlappingSlots, flags })
+    eligible.push({ therapist, score, overlappingSlots, flags, currentWeeklyHours })
   }
 
   return {
@@ -35,60 +44,127 @@ export function findEligibleTherapists(
   }
 }
 
-export function generateWeeklySchedule(
-  _client: Client,
-  _therapist: Therapist,
-  overlappingSlots: Slot[]
+// Generates a distributed weekly schedule across 2-3 selected therapists.
+// Each therapist gets at least 1 session; remaining sessions go to those who need more hours.
+export function generateMultiTherapistSchedule(
+  selectedResults: MatchResult[]
 ): ScheduleResult {
-  const TARGET_HOURS = 12
+  if (selectedResults.length < 2) {
+    return { ok: false, reason: 'min_therapist_count_not_met' }
+  }
 
-  // Try 3 sessions × 4h first, then 4 sessions × 3h
-  const options = [
-    { sessions: 3, hoursEach: 4 },
-    { sessions: 4, hoursEach: 3 },
-  ]
+  // Verify all therapists have at least some overlap
+  const anyEmpty = selectedResults.some((r) => totalOverlapHours(r.overlappingSlots) === 0)
+  if (anyEmpty) return { ok: false, reason: 'no_valid_slots' }
 
-  for (const { sessions, hoursEach } of options) {
-    const schedule = tryBuildSchedule(overlappingSlots, sessions, hoursEach)
-    if (schedule) {
-      const totalHours = schedule.reduce((acc, s) => acc + slotDurationHours(s), 0)
-      if (totalHours >= TARGET_HOURS) {
-        return { ok: true, schedule }
-      }
+  // Try 3 sessions × 4h, then 4 sessions × 3h
+  for (const { sessionCount, hoursEach } of [
+    { sessionCount: 3, hoursEach: 4 },
+    { sessionCount: 4, hoursEach: 3 },
+  ]) {
+    const assignments = tryDistribute(selectedResults, sessionCount, hoursEach)
+    if (assignments) {
+      const totalWeeklyHours = assignments.reduce((acc, a) => acc + a.weeklyHours, 0)
+      return { ok: true, schedule: { assignments, totalWeeklyHours } }
     }
   }
 
-  // Check why it failed
-  const total = totalOverlapHours(overlappingSlots)
-  if (overlappingSlots.length === 0) return { ok: false, reason: 'no_valid_slots' }
-  if (total < TARGET_HOURS) return { ok: false, reason: 'insufficient_hours' }
+  // Diagnose why it failed
+  const totalAvailable = selectedResults.reduce(
+    (acc, r) => acc + totalOverlapHours(r.overlappingSlots),
+    0
+  )
+  if (totalAvailable < 12) return { ok: false, reason: 'insufficient_hours' }
   return { ok: false, reason: 'clinic_hours_conflict' }
 }
 
-function tryBuildSchedule(
-  slots: Slot[],
+// Distributes `sessionCount` sessions of `hoursEach` duration across the selected therapists.
+// Phase 1: every therapist gets exactly 1 session (guarantees 2-3 therapists per client).
+// Phase 2: remaining sessions go to therapists with lowest currentWeeklyHours first.
+function tryDistribute(
+  selectedResults: MatchResult[],
   sessionCount: number,
   hoursEach: number
-): WeeklySchedule | null {
+): TherapistAssignment[] | null {
+  if (sessionCount < selectedResults.length) return null
+
   const minutesEach = hoursEach * 60
-  const result: WeeklySchedule = []
+  // Track all slots already committed (client cannot be in two places at once)
+  const usedSlots: Slot[] = []
+  const assignments = new Map<string, TherapistAssignment>()
 
-  for (const slot of slots) {
-    if (result.length >= sessionCount) break
-
-    const slotMinutes =
-      timeToMinutes(slot.end_time) - timeToMinutes(slot.start_time)
-
-    if (slotMinutes >= minutesEach) {
-      result.push({
-        day_of_week: slot.day_of_week,
-        start_time: slot.start_time,
-        end_time: minutesToTime(timeToMinutes(slot.start_time) + minutesEach),
-      })
-    }
+  for (const r of selectedResults) {
+    assignments.set(r.therapist.id, {
+      therapist: r.therapist,
+      slots: [],
+      weeklyHours: 0,
+    })
   }
 
-  return result.length === sessionCount ? result : null
+  // Phase 1: one session per therapist
+  for (const r of selectedResults) {
+    const slot = pickNonConflictingSlot(r.overlappingSlots, usedSlots, minutesEach)
+    if (!slot) return null
+    const a = assignments.get(r.therapist.id)!
+    a.slots.push(slot)
+    a.weeklyHours += hoursEach
+    usedSlots.push(slot)
+  }
+
+  // Phase 2: distribute remaining sessions, prioritising therapists with fewer hours
+  let remaining = sessionCount - selectedResults.length
+  const byNeed = [...selectedResults].sort(
+    (a, b) => a.currentWeeklyHours - b.currentWeeklyHours
+  )
+
+  let rounds = 0
+  while (remaining > 0) {
+    let assignedThisRound = 0
+    for (const r of byNeed) {
+      if (remaining <= 0) break
+      const slot = pickNonConflictingSlot(r.overlappingSlots, usedSlots, minutesEach)
+      if (slot) {
+        const a = assignments.get(r.therapist.id)!
+        a.slots.push(slot)
+        a.weeklyHours += hoursEach
+        usedSlots.push(slot)
+        remaining--
+        assignedThisRound++
+      }
+    }
+    if (assignedThisRound === 0) return null // stuck — can't fill remaining sessions
+    if (++rounds > 10) return null // safety guard
+  }
+
+  return [...assignments.values()]
+}
+
+// Returns the first slot in `available` that fits `durationMinutes` without overlapping `used`.
+function pickNonConflictingSlot(
+  available: Slot[],
+  used: Slot[],
+  durationMinutes: number
+): Slot | null {
+  for (const slot of available) {
+    const slotMinutes = timeToMinutes(slot.end_time) - timeToMinutes(slot.start_time)
+    if (slotMinutes < durationMinutes) continue
+
+    const proposed: Slot = {
+      day_of_week: slot.day_of_week,
+      start_time: slot.start_time,
+      end_time: minutesToTime(timeToMinutes(slot.start_time) + durationMinutes),
+    }
+
+    const conflict = used.some(
+      (u) =>
+        u.day_of_week === proposed.day_of_week &&
+        timeToMinutes(u.start_time) < timeToMinutes(proposed.end_time) &&
+        timeToMinutes(u.end_time) > timeToMinutes(proposed.start_time)
+    )
+
+    if (!conflict) return proposed
+  }
+  return null
 }
 
 function timeToMinutes(t: string): number {
@@ -99,3 +175,6 @@ function timeToMinutes(t: string): number {
 function minutesToTime(m: number): string {
   return `${Math.floor(m / 60).toString().padStart(2, '0')}:${(m % 60).toString().padStart(2, '0')}`
 }
+
+// Re-export for consumers that only need overlap utilities
+export { slotDurationHours, totalOverlapHours, computeOverlappingSlots }
