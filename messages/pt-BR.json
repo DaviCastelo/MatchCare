@@ -130,7 +130,9 @@
     "showing": "Mostrando {from}–{to} de {total}",
     "previous": "Anterior",
     "next": "Próximo",
-    "pageOf": "Página {page} de {totalPages}"
+    "pageOf": "Página {page} de {totalPages}",
+    "belowMinHours": "{hours}h de {target}h",
+    "belowMinHoursTooltip": "Abaixo do mínimo recomendado de {target}h semanais"
   },
   "match": {
     "title": "Ferramenta de Match",
@@ -170,7 +172,7 @@
     "genderWarning": "Atenção: um ou mais terapeutas selecionados têm sexo diferente da criança. Revise antes de confirmar.",
     "scheduleError_insufficient_hours": "Horas sobrepostas insuficientes para montar a agenda semanal configurada para este cliente.",
     "scheduleError_no_valid_slots": "Nenhum slot válido se sobrepõe entre cliente e terapeuta.",
-    "scheduleError_clinic_hours_conflict": "Os slots sobrepostos estão fora do horário de funcionamento da clínica.",
+    "scheduleError_clinic_hours_conflict": "Não foi possível encaixar as sessões nos horários livres dos terapeutas selecionados. Tente outros terapeutas ou amplie a disponibilidade.",
     "scheduleError_min_therapist_count_not_met": "Não foi possível encontrar horários para 2+ terapeutas. Tente selecionar outros terapeutas.",
     "scheduleError_therapist_capacity_exceeded": "Um ou mais terapeutas selecionados não têm capacidade restante esta semana."
   },
@@ -281,6 +283,18 @@
     "uploading": "Enviando...",
     "photoUpdated": "Foto atualizada!",
     "photoError": "Não foi possível enviar a foto",
-    "photoHint": "JPG, PNG ou WebP. Máx. 5 MB."
+    "photoHint": "JPG, PNG ou WebP. Máx. 5 MB.",
+    "addMultiple": "Adicionar vários dias",
+    "weekdays": "Dias úteis",
+    "everyDay": "Todos os dias",
+    "clearDays": "Limpar",
+    "from": "De",
+    "to": "até",
+    "add": "Adicionar",
+    "noSlots": "Nenhum horário cadastrado ainda.",
+    "saving": "Salvando...",
+    "invalidRange": "O horário final deve ser maior que o inicial.",
+    "availabilitySaved": "Disponibilidade salva!",
+    "availabilityError": "Não foi possível salvar a disponibilidade"
   }
 }

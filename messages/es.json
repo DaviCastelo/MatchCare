@@ -130,7 +130,9 @@
     "showing": "Mostrando {from}–{to} de {total}",
     "previous": "Anterior",
     "next": "Siguiente",
-    "pageOf": "Página {page} de {totalPages}"
+    "pageOf": "Página {page} de {totalPages}",
+    "belowMinHours": "{hours}h de {target}h",
+    "belowMinHoursTooltip": "Por debajo del mínimo recomendado de {target}h semanales"
   },
   "match": {
     "title": "Herramienta de Match",
@@ -170,7 +172,7 @@
     "genderWarning": "Atención: uno o más terapeutas seleccionados tienen un sexo diferente al de la niña/o. Revise antes de confirmar.",
     "scheduleError_insufficient_hours": "No hay suficientes horas superpuestas para armar el horario semanal configurado para este cliente.",
     "scheduleError_no_valid_slots": "No hay franjas horarias válidas que se superpongan entre cliente y terapeuta.",
-    "scheduleError_clinic_hours_conflict": "Las franjas superpuestas están fuera del horario de la clínica.",
+    "scheduleError_clinic_hours_conflict": "No se pudieron encajar las sesiones en los horarios libres de los terapeutas seleccionados. Pruebe otros terapeutas o amplíe la disponibilidad.",
     "scheduleError_min_therapist_count_not_met": "No se pudieron encontrar horarios para 2+ terapeutas. Intente seleccionar otros terapeutas.",
     "scheduleError_therapist_capacity_exceeded": "Uno o más terapeutas seleccionados no tienen capacidad restante esta semana."
   },
@@ -281,6 +283,18 @@
     "uploading": "Subiendo...",
     "photoUpdated": "¡Foto actualizada!",
     "photoError": "No se pudo subir la foto",
-    "photoHint": "JPG, PNG o WebP. Máx. 5 MB."
+    "photoHint": "JPG, PNG o WebP. Máx. 5 MB.",
+    "addMultiple": "Agregar varios días",
+    "weekdays": "Días hábiles",
+    "everyDay": "Todos los días",
+    "clearDays": "Limpiar",
+    "from": "Desde",
+    "to": "hasta",
+    "add": "Agregar",
+    "noSlots": "Sin horarios todavía.",
+    "saving": "Guardando...",
+    "invalidRange": "La hora final debe ser mayor que la inicial.",
+    "availabilitySaved": "¡Disponibilidad guardada!",
+    "availabilityError": "No se pudo guardar la disponibilidad"
   }
 }

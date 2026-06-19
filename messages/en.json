@@ -130,7 +130,9 @@
     "showing": "Showing {from}–{to} of {total}",
     "previous": "Previous",
     "next": "Next",
-    "pageOf": "Page {page} of {totalPages}"
+    "pageOf": "Page {page} of {totalPages}",
+    "belowMinHours": "{hours}h of {target}h",
+    "belowMinHoursTooltip": "Below the recommended minimum of {target}h per week"
   },
   "match": {
     "title": "Match Tool",
@@ -170,7 +172,7 @@
     "genderWarning": "Note: one or more selected therapists have a different sex than the child. Review before confirming.",
     "scheduleError_insufficient_hours": "Not enough overlapping hours to build this client's configured weekly schedule.",
     "scheduleError_no_valid_slots": "No valid time slots overlap between client and therapist.",
-    "scheduleError_clinic_hours_conflict": "Overlapping slots fall outside clinic operating hours.",
+    "scheduleError_clinic_hours_conflict": "Couldn't fit the sessions into the selected therapists' free time. Try other therapists or widen availability.",
     "scheduleError_min_therapist_count_not_met": "Could not find valid slots for 2+ therapists. Try selecting different therapists.",
     "scheduleError_therapist_capacity_exceeded": "One or more selected therapists has no remaining capacity this week."
   },
@@ -281,6 +283,18 @@
     "uploading": "Uploading...",
     "photoUpdated": "Photo updated!",
     "photoError": "Could not upload photo",
-    "photoHint": "JPG, PNG or WebP. Max 5 MB."
+    "photoHint": "JPG, PNG or WebP. Max 5 MB.",
+    "addMultiple": "Add multiple days",
+    "weekdays": "Weekdays",
+    "everyDay": "Every day",
+    "clearDays": "Clear",
+    "from": "From",
+    "to": "to",
+    "add": "Add",
+    "noSlots": "No time slots yet.",
+    "saving": "Saving...",
+    "invalidRange": "End time must be after start time.",
+    "availabilitySaved": "Availability saved!",
+    "availabilityError": "Could not save availability"
   }
 }

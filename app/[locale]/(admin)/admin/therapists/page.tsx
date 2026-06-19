@@ -1,11 +1,12 @@
 import { Suspense } from 'react'
 import { getTranslations } from 'next-intl/server'
-import { getTherapists } from '@/app/actions/therapists'
+import { getTherapists, getTherapistWeeklyHours } from '@/app/actions/therapists'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { TherapistsAdminList } from '@/components/admin/therapists-admin-list'
+import { THERAPIST_WEEKLY_TARGET } from '@/lib/constants'
 
 export default async function TherapistsPage({
   params,
@@ -15,7 +16,10 @@ export default async function TherapistsPage({
   const { locale } = await params
   const t = await getTranslations('therapists')
   const tc = await getTranslations('common')
-  const therapists = await getTherapists()
+  const [therapists, weeklyHours] = await Promise.all([
+    getTherapists(),
+    getTherapistWeeklyHours(),
+  ])
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -57,6 +61,8 @@ export default async function TherapistsPage({
           therapists={therapists}
           locale={locale}
           adminUserId={user?.id ?? ''}
+          weeklyHours={weeklyHours}
+          minWeeklyHours={THERAPIST_WEEKLY_TARGET}
           labels={labels}
         />
       </Suspense>

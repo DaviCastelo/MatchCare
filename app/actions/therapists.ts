@@ -4,6 +4,24 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import type { Therapist, TherapistUpdate } from '@/lib/types/therapist'
 
+// Sums each therapist's currently scheduled weekly hours (active sessions, all clients).
+// Used to flag therapists below the soft THERAPIST_WEEKLY_TARGET (see lib/constants).
+export async function getTherapistWeeklyHours(): Promise<Record<string, number>> {
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from('sessions')
+    .select('therapist_id, start_time, end_time')
+    .eq('status', 'active')
+
+  const map: Record<string, number> = {}
+  for (const s of data ?? []) {
+    const [sh, sm] = s.start_time.split(':').map(Number)
+    const [eh, em] = s.end_time.split(':').map(Number)
+    map[s.therapist_id] = (map[s.therapist_id] ?? 0) + ((eh * 60 + em) - (sh * 60 + sm)) / 60
+  }
+  return map
+}
+
 export async function getTherapists(): Promise<Therapist[]> {
   const supabase = createAdminClient()
   const { data, error } = await supabase

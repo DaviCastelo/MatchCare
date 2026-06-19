@@ -7,6 +7,7 @@ import {
   computeOverlappingSlots,
   hasGenderMismatch,
   totalOverlapHours,
+  subtractBusySlots,
 } from '../rules'
 import {
   baseClient,
@@ -228,5 +229,66 @@ describe('hasGenderMismatch', () => {
       { ...baseClient, sex: 'Female' },
       { ...therapistA, sex: null }
     )).toBe(false)
+  })
+})
+
+// ─── subtractBusySlots ───────────────────────────────────────────────────────
+
+describe('subtractBusySlots', () => {
+  const win = [{ day_of_week: 1, start_time: '08:00', end_time: '17:00' }]
+
+  it('returns the window unchanged when there is no busy time', () => {
+    expect(subtractBusySlots(win, [])).toEqual(win)
+  })
+
+  it('splits a window around a busy interval in the middle', () => {
+    const result = subtractBusySlots(win, [
+      { day_of_week: 1, start_time: '12:00', end_time: '13:00' },
+    ])
+    expect(result).toEqual([
+      { day_of_week: 1, start_time: '08:00', end_time: '12:00' },
+      { day_of_week: 1, start_time: '13:00', end_time: '17:00' },
+    ])
+  })
+
+  it('trims the start when busy overlaps the beginning', () => {
+    const result = subtractBusySlots(win, [
+      { day_of_week: 1, start_time: '07:00', end_time: '10:00' },
+    ])
+    expect(result).toEqual([{ day_of_week: 1, start_time: '10:00', end_time: '17:00' }])
+  })
+
+  it('removes the window entirely when fully booked', () => {
+    const result = subtractBusySlots(win, [
+      { day_of_week: 1, start_time: '08:00', end_time: '17:00' },
+    ])
+    expect(result).toEqual([])
+  })
+
+  it('ignores busy intervals on other days', () => {
+    const result = subtractBusySlots(win, [
+      { day_of_week: 2, start_time: '09:00', end_time: '16:00' },
+    ])
+    expect(result).toEqual(win)
+  })
+
+  it('treats back-to-back intervals as non-overlapping (adjacency)', () => {
+    // busy ends exactly when the window starts → nothing removed
+    const result = subtractBusySlots(win, [
+      { day_of_week: 1, start_time: '06:00', end_time: '08:00' },
+    ])
+    expect(result).toEqual(win)
+  })
+
+  it('subtracts multiple busy intervals', () => {
+    const result = subtractBusySlots(win, [
+      { day_of_week: 1, start_time: '09:00', end_time: '10:00' },
+      { day_of_week: 1, start_time: '14:00', end_time: '15:00' },
+    ])
+    expect(result).toEqual([
+      { day_of_week: 1, start_time: '08:00', end_time: '09:00' },
+      { day_of_week: 1, start_time: '10:00', end_time: '14:00' },
+      { day_of_week: 1, start_time: '15:00', end_time: '17:00' },
+    ])
   })
 })

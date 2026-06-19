@@ -86,7 +86,7 @@
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
+  --card: oklch(0.21 0.034 264.665);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
@@ -107,13 +107,15 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
+  /* Align sidebar with main app canvas (gray-950) */
+  --app-canvas: oklch(0.129 0.042 264.695);
+  --sidebar: var(--app-canvas);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent: oklch(0.208 0.042 265.755);
   --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-border: oklch(1 0 0 / 8%);
   --sidebar-ring: oklch(0.556 0 0);
 }
 
@@ -126,6 +128,32 @@
   }
   html {
     @apply font-sans;
+  }
+
+  /* Dark mode: filled fields get teal highlight (same feel as card hover) */
+  .dark [data-slot="input"]:not(:placeholder-shown):not(:disabled),
+  .dark [data-slot="textarea"]:not(:placeholder-shown):not(:disabled),
+  .dark [data-slot="select-trigger"]:not([data-placeholder]):not(:disabled) {
+    @apply border-teal-500/50 bg-teal-950/30 ring-1 ring-teal-500/30;
+  }
+
+  /* Dark mode: keep autofill from forcing white background */
+  .dark [data-slot="input"]:-webkit-autofill,
+  .dark [data-slot="input"]:-webkit-autofill:hover,
+  .dark [data-slot="input"]:-webkit-autofill:focus,
+  .dark [data-slot="textarea"]:-webkit-autofill,
+  .dark [data-slot="textarea"]:-webkit-autofill:hover,
+  .dark [data-slot="textarea"]:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--foreground) !important;
+    caret-color: var(--foreground);
+    border-color: color-mix(in oklab, var(--color-teal-500) 50%, transparent) !important;
+    -webkit-box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--color-teal-500) 30%, transparent),
+      0 0 0 1000px color-mix(in oklab, var(--color-teal-950) 30%, transparent) inset !important;
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--color-teal-500) 30%, transparent),
+      0 0 0 1000px color-mix(in oklab, var(--color-teal-950) 30%, transparent) inset !important;
+    transition: background-color 99999s ease-out 0s;
   }
 }
 

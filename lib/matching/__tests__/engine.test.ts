@@ -241,25 +241,33 @@ describe('generateMultiTherapistSchedule', () => {
 // ─── Configurable weekly load ────────────────────────────────────────────────
 
 describe('buildScheduleCandidates', () => {
-  it('builds 12h candidates for 2 therapists, longest block first', () => {
+  it('builds 12h candidates from 3–5h blocks, longest first', () => {
+    // 5 does not divide 12; only 4h and 3h sessions apply
     expect(buildScheduleCandidates(12, 2)).toEqual([
       { sessionCount: 3, hoursEach: 4 },
       { sessionCount: 4, hoursEach: 3 },
-      { sessionCount: 6, hoursEach: 2 },
-      { sessionCount: 12, hoursEach: 1 },
     ])
   })
 
-  it('drops blocks that cannot give every therapist a session', () => {
-    // 4h across 2 therapists: a 4h block (1 session) would starve the 2nd therapist
-    expect(buildScheduleCandidates(4, 2)).toEqual([
-      { sessionCount: 2, hoursEach: 2 },
-      { sessionCount: 4, hoursEach: 1 },
+  it('uses 5h sessions when the weekly load is a multiple of 5', () => {
+    expect(buildScheduleCandidates(15, 3)).toEqual([
+      { sessionCount: 3, hoursEach: 5 },
+      { sessionCount: 5, hoursEach: 3 },
     ])
   })
 
-  it('returns no candidates when weekly load is below therapist count', () => {
-    expect(buildScheduleCandidates(1, 2)).toEqual([])
+  it('returns no candidates when the load cannot be split into 3–5h sessions', () => {
+    // 4h cannot be two sessions of >= 3h each
+    expect(buildScheduleCandidates(4, 2)).toEqual([])
+  })
+
+  it('never produces sessions shorter than 3h or longer than 5h', () => {
+    for (const weekly of [6, 9, 10, 12, 15, 18, 20]) {
+      for (const c of buildScheduleCandidates(weekly, 2)) {
+        expect(c.hoursEach).toBeGreaterThanOrEqual(3)
+        expect(c.hoursEach).toBeLessThanOrEqual(5)
+      }
+    }
   })
 })
 
@@ -282,23 +290,16 @@ describe('generateMultiTherapistSchedule — configurable weekly hours', () => {
     ],
   }
 
-  it('fits a 4h/week load into 1-hour windows by falling back to 1h blocks', () => {
+  it('rejects a weekly load that cannot be split into 3–5h sessions', () => {
+    // 4h with 2 therapists is impossible (min session 3h → min 6h for 2 sessions)
     const result = generateMultiTherapistSchedule(
-      [makeMatchResult(shortWindows1, 0), makeMatchResult(shortWindows2, 0)],
+      [makeMatchResult(therapistA, 0), makeMatchResult(therapistB, 0)],
       4
     )
-    expect(result.ok).toBe(true)
-    if (!result.ok) return
-    expect(result.schedule.totalWeeklyHours).toBe(4)
-    // every assigned slot is exactly 1 hour
-    for (const a of result.schedule.assignments) {
-      for (const s of a.slots) {
-        expect(toMin(s.end_time) - toMin(s.start_time)).toBe(60)
-      }
-    }
+    expect(result.ok).toBe(false)
   })
 
-  it('honours a custom 6h/week load', () => {
+  it('honours a custom 6h/week load as two 3h sessions', () => {
     const result = generateMultiTherapistSchedule(
       [makeMatchResult(therapistA, 0), makeMatchResult(therapistB, 0)],
       6
@@ -306,6 +307,14 @@ describe('generateMultiTherapistSchedule — configurable weekly hours', () => {
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(result.schedule.totalWeeklyHours).toBe(6)
+    // every session is between 3h and 5h
+    for (const a of result.schedule.assignments) {
+      for (const s of a.slots) {
+        const h = (toMin(s.end_time) - toMin(s.start_time)) / 60
+        expect(h).toBeGreaterThanOrEqual(3)
+        expect(h).toBeLessThanOrEqual(5)
+      }
+    }
   })
 
   it('defaults to a 12h/week load when weeklyHours is omitted', () => {
@@ -327,6 +336,67 @@ describe('generateMultiTherapistSchedule — configurable weekly hours', () => {
     expect(result.ok).toBe(false)
     if (result.ok) return
     expect(result.reason).toBe('insufficient_hours')
+  })
+})
+
+// ─── Window packing (slide within a window) ──────────────────────────────────
+
+describe('generateMultiTherapistSchedule — window packing', () => {
+  it('stacks multiple sessions inside one wide window (slide fix)', () => {
+    // w1 only Mon 09:00–17:00, w2 only Tue 09:00–17:00. 12h needs w1 to host
+    // TWO 4h sessions on Monday (09–13 and 13–17) — impossible without sliding.
+    const w1 = makeMatchResult({ ...therapistA, id: 'w-1' }, 0, [
+      { day_of_week: 1, start_time: '09:00', end_time: '17:00' },
+    ])
+    const w2 = makeMatchResult({ ...therapistB, id: 'w-2' }, 0, [
+      { day_of_week: 2, start_time: '09:00', end_time: '17:00' },
+    ])
+    const result = generateMultiTherapistSchedule([w1, w2], 12)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.schedule.totalWeeklyHours).toBe(12)
+
+    // some therapist has 2+ sessions on the same day (proves stacking)
+    const stacked = result.schedule.assignments.some((a) => {
+      const byDay = new Map<number, number>()
+      for (const s of a.slots) byDay.set(s.day_of_week, (byDay.get(s.day_of_week) ?? 0) + 1)
+      return [...byDay.values()].some((n) => n >= 2)
+    })
+    expect(stacked).toBe(true)
+
+    // no client double-booking + every session within 3–5h
+    const all = result.schedule.assignments.flatMap((a) => a.slots)
+    for (const s of all) {
+      const h = (toMin(s.end_time) - toMin(s.start_time)) / 60
+      expect(h).toBeGreaterThanOrEqual(3)
+      expect(h).toBeLessThanOrEqual(5)
+    }
+    for (let i = 0; i < all.length; i++) {
+      for (let j = i + 1; j < all.length; j++) {
+        const a = all[i], b = all[j]
+        if (a.day_of_week !== b.day_of_week) continue
+        const overlap = toMin(a.start_time) < toMin(b.end_time) && toMin(a.end_time) > toMin(b.start_time)
+        expect(overlap).toBe(false)
+      }
+    }
+  })
+
+  it('uses 5h sessions (max block) when the weekly load fits', () => {
+    const w1 = makeMatchResult({ ...therapistA, id: 'w5-1' }, 0, [
+      { day_of_week: 1, start_time: '09:00', end_time: '17:00' },
+    ])
+    const w2 = makeMatchResult({ ...therapistB, id: 'w5-2' }, 0, [
+      { day_of_week: 2, start_time: '09:00', end_time: '17:00' },
+    ])
+    const result = generateMultiTherapistSchedule([w1, w2], 10)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.schedule.totalWeeklyHours).toBe(10)
+    for (const a of result.schedule.assignments) {
+      for (const s of a.slots) {
+        expect((toMin(s.end_time) - toMin(s.start_time)) / 60).toBe(5)
+      }
+    }
   })
 })
 

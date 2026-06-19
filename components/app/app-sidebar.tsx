@@ -122,7 +122,7 @@ function SidebarNav({ items, settingsHref }: { items: NavItem[]; settingsHref: s
 
 function AppSidebarFrame({ items, settingsHref }: { items: NavItem[]; settingsHref: string }) {
   return (
-    <Sidebar collapsible="icon" className="border-gray-200 dark:border-gray-800">
+    <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border p-3">
         <div className="flex items-center justify-center overflow-hidden">
           <MatchCareLogo className="max-w-[160px] group-data-[collapsible=icon]:hidden" />

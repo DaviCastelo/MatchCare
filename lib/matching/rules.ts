@@ -86,6 +86,44 @@ export function totalOverlapHours(slots: Slot[]): number {
   return slots.reduce((acc, s) => acc + slotDurationHours(s), 0)
 }
 
+// Returns the parts of `available` windows that are NOT covered by `busy` intervals
+// on the same day. Used to exclude times a therapist is already booked with another
+// client, so the matcher never proposes a double-booking.
+export function subtractBusySlots(available: Slot[], busy: Slot[]): Slot[] {
+  const result: Slot[] = []
+
+  for (const slot of available) {
+    const slotEnd = timeToMinutes(slot.end_time)
+    const dayBusy = busy
+      .filter((b) => b.day_of_week === slot.day_of_week)
+      .map((b) => ({ start: timeToMinutes(b.start_time), end: timeToMinutes(b.end_time) }))
+      .sort((a, b) => a.start - b.start)
+
+    let cursor = timeToMinutes(slot.start_time)
+    for (const b of dayBusy) {
+      if (b.end <= cursor || b.start >= slotEnd) continue // no overlap with remaining window
+      if (b.start > cursor) {
+        result.push({
+          day_of_week: slot.day_of_week,
+          start_time: minutesToTime(cursor),
+          end_time: minutesToTime(b.start),
+        })
+      }
+      cursor = Math.max(cursor, b.end)
+      if (cursor >= slotEnd) break
+    }
+    if (cursor < slotEnd) {
+      result.push({
+        day_of_week: slot.day_of_week,
+        start_time: minutesToTime(cursor),
+        end_time: minutesToTime(slotEnd),
+      })
+    }
+  }
+
+  return result
+}
+
 // ─── Hard Rules ───────────────────────────────────────────────────────────────
 
 export function checkScoreCompatibility(client: Client, therapist: Therapist): boolean {

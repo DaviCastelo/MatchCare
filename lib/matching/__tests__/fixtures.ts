@@ -1,6 +1,6 @@
 import type { Client } from '@/lib/types/client'
 import type { Therapist } from '@/lib/types/therapist'
-import type { MatchResult } from '@/lib/types/matching'
+import type { MatchResult, Slot } from '@/lib/types/matching'
 
 // ─── Client ───────────────────────────────────────────────────────────────────
 // Available Mon–Fri 09:00–17:00 (8h/day × 5 days = 40h raw overlap possible)
@@ -150,7 +150,7 @@ export const therapistTooLittleOverlap: Therapist = {
 export function makeMatchResult(
   therapist: Therapist,
   currentWeeklyHours: number,
-  overlappingSlots = therapist.availability ?? []
+  overlappingSlots: Slot[] = therapist.availability ?? []
 ): MatchResult {
   return {
     therapist,

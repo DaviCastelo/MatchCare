@@ -203,7 +203,7 @@ export function ClientsAdminList({ clients, locale, labels }: ClientsAdminListPr
           <div className="grid gap-4">
             {items.map((client) => (
               <Link key={client.id} href={`/${locale}/admin/clients/${client.id}`}>
-                <Card className="hover:shadow-md hover:ring-blue-500/30 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
+                <Card interactive>
                   <CardContent className="flex items-center gap-4 py-4">
                     <Avatar size="lg" className="size-11">
                       <AvatarFallback className="bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 font-semibold text-sm">

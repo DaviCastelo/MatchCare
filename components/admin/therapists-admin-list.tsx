@@ -16,12 +16,14 @@ import { ListPagination } from '@/components/app/list-pagination'
 import { filterTherapists, paginate, type TherapistListFilters } from '@/lib/admin/entity-list'
 import { approveTherapist, rejectTherapist } from '@/app/actions/therapists'
 import type { Therapist } from '@/lib/types/therapist'
-import { Search, X } from 'lucide-react'
+import { AlertTriangle, Search, X } from 'lucide-react'
 
 type TherapistsAdminListProps = {
   therapists: Therapist[]
   locale: string
   adminUserId: string
+  weeklyHours: Record<string, number>
+  minWeeklyHours: number
   labels: {
     approved: string
     pending: string
@@ -48,15 +50,20 @@ function TherapistListContent({
   items,
   locale,
   adminUserId,
+  weeklyHours,
+  minWeeklyHours,
   labels,
   showActions,
 }: {
   items: Therapist[]
   locale: string
   adminUserId: string
+  weeklyHours: Record<string, number>
+  minWeeklyHours: number
   labels: TherapistsAdminListProps['labels']
   showActions: boolean
 }) {
+  const t = useTranslations('therapists')
   const [, startTransition] = useTransition()
 
   function handleApprove(id: string) {
@@ -71,8 +78,12 @@ function TherapistListContent({
     <div className="grid gap-4">
       {items.map((therapist) => {
         const name = therapist.profile?.full_name ?? therapist.email
+        const hours = weeklyHours[therapist.id] ?? 0
+        // Only flag approved therapists — pending ones can't be scheduled yet.
+        const belowMin = !showActions && hours < minWeeklyHours
+        const hoursLabel = Number.isInteger(hours) ? String(hours) : hours.toFixed(1)
         const card = (
-          <Card className={showActions ? '' : 'hover:shadow-md hover:ring-teal-500/30 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer'}>
+          <Card interactive={!showActions}>
             <CardContent className="flex items-center gap-4 py-4">
               <Avatar size="lg" className="size-11">
                 <AvatarImage src={therapist.profile?.avatar_url ?? undefined} alt={name} />
@@ -97,6 +108,16 @@ function TherapistListContent({
                 </p>
               </div>
               <div className="flex items-center gap-2">
+                {belowMin && (
+                  <Badge
+                    variant="outline"
+                    className="gap-1 border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-400"
+                    title={t('belowMinHoursTooltip', { target: minWeeklyHours })}
+                  >
+                    <AlertTriangle className="w-3 h-3" />
+                    {t('belowMinHours', { hours: hoursLabel, target: minWeeklyHours })}
+                  </Badge>
+                )}
                 <Badge variant="outline">Score {therapist.professional_score}</Badge>
                 {showActions && (
                   <>
@@ -139,6 +160,8 @@ export function TherapistsAdminList({
   therapists,
   locale,
   adminUserId,
+  weeklyHours,
+  minWeeklyHours,
   labels,
 }: TherapistsAdminListProps) {
   const t = useTranslations('therapists')
@@ -217,6 +240,8 @@ export function TherapistsAdminList({
           items={items}
           locale={locale}
           adminUserId={adminUserId}
+          weeklyHours={weeklyHours}
+          minWeeklyHours={minWeeklyHours}
           labels={labels}
           showActions={showActions}
         />
