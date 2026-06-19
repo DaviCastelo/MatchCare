@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { redirect } from 'next/navigation'
 import { AvailabilityEditor } from '@/components/app/availability-editor'
 import { AvatarUpload } from '@/components/app/avatar-upload'
@@ -29,6 +30,7 @@ export default async function TherapistProfilePage({
     const { locale } = await params
     await updateTherapist(user?.id ?? '', {
       phone: formData.get('phone') as string,
+      sex: formData.get('sex') as 'Male' | 'Female',
       city: formData.get('city') as string,
       language: formData.get('language') as string,
       notes: formData.get('notes') as string || null,
@@ -62,6 +64,16 @@ export default async function TherapistProfilePage({
               <div className="space-y-2">
                 <Label>{tc('phone')}</Label>
                 <Input name="phone" defaultValue={profile.phone} required />
+              </div>
+              <div className="space-y-2">
+                <Label>{tc('sex')}</Label>
+                <Select name="sex" defaultValue={profile.sex ?? undefined} required>
+                  <SelectTrigger><SelectValue placeholder={tc('sex')} /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">{tc('male')}</SelectItem>
+                    <SelectItem value="Female">{tc('female')}</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>{tc('city')}</Label>

@@ -29,16 +29,16 @@ const A = (day, start, end) => ({ day_of_week: day, start_time: start, end_time:
 
 // ── Therapists (professional_score scale ~1–9, threshold 5) ──────────────────────
 const therapists = [
-  { name: 'Ana Souza',      city: 'Fortaleza',      lang: 'Portuguese', score: 7, exp: 6, avail: [A(1,'09:00','17:00'),A(2,'09:00','17:00'),A(3,'09:00','17:00'),A(4,'09:00','17:00'),A(5,'09:00','17:00')] },
-  { name: 'Bruno Lima',     city: 'Fortaleza',      lang: 'Portuguese', score: 4, exp: 2, avail: [A(1,'13:00','17:00'),A(3,'13:00','17:00'),A(5,'13:00','17:00')] },
-  { name: 'Carla Mendes',   city: 'São Paulo',      lang: 'Portuguese', score: 8, exp: 9, avail: [A(1,'09:00','12:00'),A(2,'09:00','12:00'),A(3,'09:00','12:00'),A(4,'09:00','12:00')] },
-  { name: 'Diego Torres',   city: 'Rio de Janeiro', lang: 'Spanish',    score: 6, exp: 5, avail: [A(1,'14:00','18:00'),A(2,'14:00','18:00'),A(3,'14:00','18:00'),A(4,'14:00','18:00'),A(5,'14:00','18:00')] },
-  { name: 'Elena Faria',    city: 'Fortaleza',      lang: 'English',    score: 3, exp: 1, avail: [A(2,'15:00','18:00'),A(4,'15:00','18:00')] },
-  { name: 'Felipe Rocha',   city: 'São Paulo',      lang: 'Portuguese', score: 5, exp: 4, avail: [A(1,'09:00','13:00'),A(3,'09:00','13:00')] },
-  { name: 'Gabriela Nunes', city: 'Fortaleza',      lang: 'Portuguese', score: 9, exp: 12, avail: [A(1,'09:00','18:00'),A(2,'09:00','18:00'),A(3,'09:00','18:00'),A(4,'09:00','18:00'),A(5,'09:00','18:00'),A(6,'09:30','14:00')] },
-  { name: 'Hugo Castro',    city: 'Recife',         lang: 'Portuguese', score: 2, exp: 1, avail: [A(0,'10:00','14:00'),A(6,'09:30','14:30')] },
-  { name: 'Igor Ramos',     city: 'Fortaleza',      lang: 'English',    score: 6, exp: 5, avail: [A(1,'10:00','16:00'),A(2,'10:00','16:00'),A(3,'10:00','16:00'),A(4,'10:00','16:00'),A(5,'10:00','16:00')] },
-  { name: 'Julia Pinto',    city: 'São Paulo',      lang: 'Portuguese', score: 7, exp: 7, avail: [A(2,'13:00','19:00'),A(3,'13:00','19:00'),A(4,'13:00','19:00')] },
+  { name: 'Ana Souza',      sex: 'Female', city: 'Fortaleza',      lang: 'Portuguese', score: 7, exp: 6, avail: [A(1,'09:00','17:00'),A(2,'09:00','17:00'),A(3,'09:00','17:00'),A(4,'09:00','17:00'),A(5,'09:00','17:00')] },
+  { name: 'Bruno Lima',     sex: 'Male',   city: 'Fortaleza',      lang: 'Portuguese', score: 4, exp: 2, avail: [A(1,'13:00','17:00'),A(3,'13:00','17:00'),A(5,'13:00','17:00')] },
+  { name: 'Carla Mendes',   sex: 'Female', city: 'São Paulo',      lang: 'Portuguese', score: 8, exp: 9, avail: [A(1,'09:00','12:00'),A(2,'09:00','12:00'),A(3,'09:00','12:00'),A(4,'09:00','12:00')] },
+  { name: 'Diego Torres',   sex: 'Male',   city: 'Rio de Janeiro', lang: 'Spanish',    score: 6, exp: 5, avail: [A(1,'14:00','18:00'),A(2,'14:00','18:00'),A(3,'14:00','18:00'),A(4,'14:00','18:00'),A(5,'14:00','18:00')] },
+  { name: 'Elena Faria',    sex: 'Female', city: 'Fortaleza',      lang: 'English',    score: 3, exp: 1, avail: [A(2,'15:00','18:00'),A(4,'15:00','18:00')] },
+  { name: 'Felipe Rocha',   sex: 'Male',   city: 'São Paulo',      lang: 'Portuguese', score: 5, exp: 4, avail: [A(1,'09:00','13:00'),A(3,'09:00','13:00')] },
+  { name: 'Gabriela Nunes', sex: 'Female', city: 'Fortaleza',      lang: 'Portuguese', score: 9, exp: 12, avail: [A(1,'09:00','18:00'),A(2,'09:00','18:00'),A(3,'09:00','18:00'),A(4,'09:00','18:00'),A(5,'09:00','18:00'),A(6,'09:30','14:00')] },
+  { name: 'Hugo Castro',    sex: 'Male',   city: 'Recife',         lang: 'Portuguese', score: 2, exp: 1, avail: [A(0,'10:00','14:00'),A(6,'09:30','14:30')] },
+  { name: 'Igor Ramos',     sex: 'Male',   city: 'Fortaleza',      lang: 'English',    score: 6, exp: 5, avail: [A(1,'10:00','16:00'),A(2,'10:00','16:00'),A(3,'10:00','16:00'),A(4,'10:00','16:00'),A(5,'10:00','16:00')] },
+  { name: 'Julia Pinto',    sex: 'Female', city: 'São Paulo',      lang: 'Portuguese', score: 7, exp: 7, avail: [A(2,'13:00','19:00'),A(3,'13:00','19:00'),A(4,'13:00','19:00')] },
 ]
 
 // ── Clients (behavior_score 1–9) ─────────────────────────────────────────────────
@@ -75,7 +75,7 @@ async function seedTherapists() {
 
     const { error: tErr } = await supabase.from('therapists').insert({
       id, email, phone: `+5585${90000000 + i}`,
-      years_of_experience: t.exp, professional_score: t.score, city: t.city, language: t.lang,
+      years_of_experience: t.exp, professional_score: t.score, sex: t.sex, city: t.city, language: t.lang,
     })
     if (tErr) { console.error(`  ✗ ${t.name} therapists row: ${tErr.message}`); continue }
 

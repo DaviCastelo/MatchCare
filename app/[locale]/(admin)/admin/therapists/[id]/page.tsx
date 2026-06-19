@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { AvailabilityEditor } from '@/components/app/availability-editor'
 import { createClient } from '@/lib/supabase/server'
 import { CheckCircle, XCircle } from 'lucide-react'
@@ -34,6 +35,7 @@ export default async function TherapistDetailPage({
       phone: formData.get('phone') as string,
       years_of_experience: Number(formData.get('years_of_experience')),
       professional_score: Number(formData.get('professional_score')),
+      sex: formData.get('sex') as 'Male' | 'Female',
       city: formData.get('city') as string,
       language: formData.get('language') as string,
       last_score_review_date: formData.get('last_score_review_date') as string || null,
@@ -105,6 +107,16 @@ export default async function TherapistDetailPage({
               <div className="space-y-2">
                 <Label>{t('experience')}</Label>
                 <Input name="years_of_experience" type="number" step="0.5" min={0} defaultValue={therapist.years_of_experience} required />
+              </div>
+              <div className="space-y-2">
+                <Label>{tc('sex')}</Label>
+                <Select name="sex" defaultValue={therapist.sex ?? 'Male'} required>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">{tc('male')}</SelectItem>
+                    <SelectItem value="Female">{tc('female')}</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>{t('professionalScore')} (1-9)</Label>

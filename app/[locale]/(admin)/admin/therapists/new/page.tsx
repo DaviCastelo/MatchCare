@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 export default async function NewTherapistPage({
   params,
@@ -42,6 +43,7 @@ export default async function NewTherapistPage({
       phone: formData.get('phone') as string,
       years_of_experience: Number(formData.get('years_of_experience')),
       professional_score: Number(formData.get('professional_score')),
+      sex: formData.get('sex') as 'Male' | 'Female',
       city: formData.get('city') as string,
       language: formData.get('language') as string,
     })
@@ -83,6 +85,16 @@ export default async function NewTherapistPage({
               <div className="space-y-2">
                 <Label>{t('experience')}</Label>
                 <Input name="years_of_experience" type="number" step="0.5" min={0} defaultValue="0" required />
+              </div>
+              <div className="space-y-2">
+                <Label>{tc('sex')}</Label>
+                <Select name="sex" defaultValue="Female" required>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">{tc('male')}</SelectItem>
+                    <SelectItem value="Female">{tc('female')}</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="col-span-2 space-y-2">
                 <Label>{t('professionalScore')} (1-9)</Label>

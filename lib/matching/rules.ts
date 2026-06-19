@@ -151,14 +151,15 @@ export function computeScore(
   const WEEKLY_TARGET = 15
   score += Math.max(0, Math.round((1 - therapistCurrentHours / WEEKLY_TARGET) * 15))
 
-  // Gender sensitivity warning
-  if (
-    therapist.professional_score < 5 &&
-    client.age <= 6 &&
-    client.sex === 'Female'
-  ) {
+  if (hasGenderMismatch(client, therapist)) {
     flags.push('GENDER_SENSITIVITY_WARNING')
   }
 
   return { score, flags }
+}
+
+/** Non-blocking: warn when client and therapist sex differ (both must be known). */
+export function hasGenderMismatch(client: Client, therapist: Therapist): boolean {
+  if (!therapist.sex) return false
+  return client.sex !== therapist.sex
 }

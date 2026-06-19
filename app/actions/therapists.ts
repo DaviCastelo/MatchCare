@@ -31,6 +31,7 @@ export async function updateTherapist(id: string, input: TherapistUpdate): Promi
   if (error) throw error
   revalidatePath(`/admin/therapists/${id}`)
   revalidatePath('/admin/therapists')
+  revalidatePath('/therapist/profile')
 }
 
 export async function approveTherapist(therapistId: string, adminId: string): Promise<void> {

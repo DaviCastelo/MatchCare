@@ -112,7 +112,8 @@
     "noTherapists": "No therapists yet.",
     "approveConfirm": "Approve this therapist account?",
     "rejectConfirm": "Reject this therapist account?",
-    "availabilityEmpty": "Complete your availability to start receiving sessions"
+    "availabilityEmpty": "Complete your availability to start receiving sessions",
+    "sexNotSet": "Sex not set"
   },
   "match": {
     "title": "Match Tool",
@@ -124,7 +125,8 @@
     "infoScore": "Score",
     "infoLocation": "Location",
     "infoWeekly": "Load",
-    "genderNote": "Gender sensitivity note",
+    "genderNote": "Therapist sex differs from client",
+    "sexNotSet": "Sex not set",
     "scheduled": "Scheduled",
     "otherAvailable": "Other available slots",
     "noOtherSlots": "No other slots",
@@ -148,7 +150,7 @@
     "confirmMatch": "Confirm Match",
     "matchSuccess": "Match confirmed! Sessions created successfully.",
     "conflictError": "A scheduling conflict was detected. Please try again.",
-    "genderWarning": "Gender sensitivity note: review this match before confirming.",
+    "genderWarning": "Note: one or more selected therapists have a different sex than the child. Review before confirming.",
     "scheduleError_insufficient_hours": "Not enough overlapping hours to build this client's configured weekly schedule.",
     "scheduleError_no_valid_slots": "No valid time slots overlap between client and therapist.",
     "scheduleError_clinic_hours_conflict": "Overlapping slots fall outside clinic operating hours.",

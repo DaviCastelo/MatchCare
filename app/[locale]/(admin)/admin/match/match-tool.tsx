@@ -191,7 +191,12 @@ export function MatchTool({ clients }: { clients: Client[]; locale: string }) {
               onValueChange={(v) => v && handleClientSelect(v)}
             >
               <SelectTrigger className="w-full sm:w-72 shrink-0">
-                <SelectValue placeholder={t('selectClient')} />
+                <SelectValue placeholder={t('selectClient')}>
+                  {(value: string | null) => {
+                    const c = clients.find((x) => x.id === value)
+                    return c ? `${c.full_name} — Score ${c.behavior_score}` : t('selectClient')
+                  }}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {clients.map((c) => (
@@ -326,6 +331,12 @@ export function MatchTool({ clients }: { clients: Client[]; locale: string }) {
                       <div className="flex items-center gap-1 mt-2 text-amber-600 dark:text-amber-400 text-xs">
                         <AlertTriangle className="w-3 h-3" />
                         {t('genderNote')}
+                      </div>
+                    )}
+                    {!result.therapist.sex && (
+                      <div className="flex items-center gap-1 mt-2 text-gray-500 dark:text-gray-400 text-xs">
+                        <AlertTriangle className="w-3 h-3" />
+                        {t('sexNotSet')}
                       </div>
                     )}
                   </button>

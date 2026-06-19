@@ -5,6 +5,7 @@ import {
   checkAvailabilityOverlap,
   computeScore,
   computeOverlappingSlots,
+  hasGenderMismatch,
   totalOverlapHours,
 } from '../rules'
 import {
@@ -186,23 +187,46 @@ describe('computeScore', () => {
     expect(at15).toBe(at20)
   })
 
-  it('adds GENDER_SENSITIVITY_WARNING flag for young female client with low-score therapist', () => {
-    const youngFemaleClient = { ...baseClient, age: 5, sex: 'Female' as const }
-    const lowScoreTherapist = {
-      ...therapistA,
-      professional_score: 4,
-      // Override score compatibility: female client score = 6, therapist = 4 < 5
-      // Actually this would fail checkScoreCompatibility, so let's use a female client with score 4
-    }
-    const lowScoreClient = { ...youngFemaleClient, behavior_score: 4 }
-    const slots = computeOverlappingSlots(lowScoreClient, lowScoreTherapist)
-    const { flags } = computeScore(lowScoreClient, lowScoreTherapist, slots, 0)
+  it('adds GENDER_SENSITIVITY_WARNING when client and therapist sex differ', () => {
+    const femaleClient = { ...baseClient, sex: 'Female' as const }
+    const maleTherapist = { ...therapistA, sex: 'Male' as const }
+    const slots = computeOverlappingSlots(femaleClient, maleTherapist)
+    const { flags } = computeScore(femaleClient, maleTherapist, slots, 0)
     expect(flags).toContain('GENDER_SENSITIVITY_WARNING')
   })
 
-  it('does NOT add gender warning for male clients', () => {
-    const slots = computeOverlappingSlots(baseClient, { ...therapistA, professional_score: 3 })
-    const { flags } = computeScore(baseClient, { ...therapistA, professional_score: 3 }, slots, 0)
+  it('does NOT add gender warning when sex matches', () => {
+    const maleTherapist = { ...therapistA, sex: 'Male' as const }
+    const slots = computeOverlappingSlots(baseClient, maleTherapist)
+    const { flags } = computeScore(baseClient, maleTherapist, slots, 0)
     expect(flags).not.toContain('GENDER_SENSITIVITY_WARNING')
+  })
+
+  it('does NOT add gender warning when therapist sex is unknown', () => {
+    const femaleClient = { ...baseClient, sex: 'Female' as const }
+    const unknownSexTherapist = { ...therapistA, sex: null }
+    const slots = computeOverlappingSlots(femaleClient, unknownSexTherapist)
+    const { flags } = computeScore(femaleClient, unknownSexTherapist, slots, 0)
+    expect(flags).not.toContain('GENDER_SENSITIVITY_WARNING')
+  })
+})
+
+describe('hasGenderMismatch', () => {
+  it('returns true when sex differs and therapist sex is set', () => {
+    expect(hasGenderMismatch(
+      { ...baseClient, sex: 'Female' },
+      { ...therapistA, sex: 'Male' }
+    )).toBe(true)
+  })
+
+  it('returns false when sex matches', () => {
+    expect(hasGenderMismatch(baseClient, { ...therapistA, sex: 'Male' })).toBe(false)
+  })
+
+  it('returns false when therapist sex is null', () => {
+    expect(hasGenderMismatch(
+      { ...baseClient, sex: 'Female' },
+      { ...therapistA, sex: null }
+    )).toBe(false)
   })
 })

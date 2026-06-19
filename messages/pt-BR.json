@@ -112,7 +112,8 @@
     "noTherapists": "Nenhum terapeuta ainda.",
     "approveConfirm": "Aprovar esta conta de terapeuta?",
     "rejectConfirm": "Rejeitar esta conta de terapeuta?",
-    "availabilityEmpty": "Complete sua disponibilidade para começar a receber sessões"
+    "availabilityEmpty": "Complete sua disponibilidade para começar a receber sessões",
+    "sexNotSet": "Sexo não informado"
   },
   "match": {
     "title": "Ferramenta de Match",
@@ -124,7 +125,8 @@
     "infoScore": "Score",
     "infoLocation": "Local",
     "infoWeekly": "Carga",
-    "genderNote": "Nota de sensibilidade de gênero",
+    "genderNote": "Sexo do terapeuta diferente do cliente",
+    "sexNotSet": "Sexo não informado",
     "scheduled": "Agendado",
     "otherAvailable": "Outros horários disponíveis",
     "noOtherSlots": "Sem outros horários",
@@ -148,7 +150,7 @@
     "confirmMatch": "Confirmar Match",
     "matchSuccess": "Match confirmado! Sessões criadas com sucesso.",
     "conflictError": "Conflito de horário detectado. Tente novamente.",
-    "genderWarning": "Atenção de sensibilidade de gênero: revise este match antes de confirmar.",
+    "genderWarning": "Atenção: um ou mais terapeutas selecionados têm sexo diferente da criança. Revise antes de confirmar.",
     "scheduleError_insufficient_hours": "Horas sobrepostas insuficientes para montar a agenda semanal configurada para este cliente.",
     "scheduleError_no_valid_slots": "Nenhum slot válido se sobrepõe entre cliente e terapeuta.",
     "scheduleError_clinic_hours_conflict": "Os slots sobrepostos estão fora do horário de funcionamento da clínica.",

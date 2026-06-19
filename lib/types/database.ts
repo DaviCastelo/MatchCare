@@ -23,6 +23,7 @@ export type Database = {
           phone: string
           years_of_experience: number
           professional_score: number
+          sex: 'Male' | 'Female' | null
           city: string
           language: string
           last_score_review_date: string | null
