@@ -1,7 +1,6 @@
 import { useTranslations } from 'next-intl'
-import { logout } from '@/app/actions/auth'
+import { LogoutConfirmButton } from '@/components/app/logout-confirm-button'
 import { MatchCareLogo } from '@/components/app/matchcare-logo'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Clock } from 'lucide-react'
 
@@ -24,11 +23,7 @@ export default function PendingApprovalPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-muted-foreground">{t('pendingDescription')}</p>
-          <form action={logout}>
-            <Button variant="outline" type="submit" className="w-full">
-              {t('logout')}
-            </Button>
-          </form>
+          <LogoutConfirmButton className="w-full" variant="outline" />
         </CardContent>
       </Card>
   )

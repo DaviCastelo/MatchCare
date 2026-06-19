@@ -15,7 +15,7 @@ function applyTheme(theme: Theme) {
   document.cookie = `theme=${theme};path=/;max-age=31536000;SameSite=Lax`
 }
 
-export function ThemeToggle() {
+export function ThemeToggle({ compact = false }: { compact?: boolean }) {
   const [theme, setTheme] = useState<Theme>('light')
   const [mounted, setMounted] = useState(false)
 
@@ -41,15 +41,21 @@ export function ThemeToggle() {
   return (
     <Button
       variant="ghost"
-      size="sm"
+      size={compact ? 'icon-sm' : 'sm'}
       onClick={toggle}
       title={`Theme: ${theme}`}
-      className="w-full justify-start gap-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+      className={
+        compact
+          ? 'size-8 text-gray-600 dark:text-gray-400'
+          : 'w-full justify-start gap-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+      }
     >
       {theme === 'light' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-      <span className="text-sm font-medium">
-        {theme === 'light' ? 'Light' : 'Dark'}
-      </span>
+      {!compact && (
+        <span className="text-sm font-medium">
+          {theme === 'light' ? 'Light' : 'Dark'}
+        </span>
+      )}
     </Button>
   )
 }

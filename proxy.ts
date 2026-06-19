@@ -2,6 +2,7 @@ import createMiddleware from 'next-intl/middleware'
 import { type NextRequest, NextResponse } from 'next/server'
 import { routing } from './i18n/routing'
 import { createServerClient } from '@supabase/ssr'
+import { LOCALE_COOKIE, localeFromPathname, resolveLocale } from './lib/i18n/locale'
 
 const intlMiddleware = createMiddleware(routing)
 
@@ -9,6 +10,13 @@ const PUBLIC_PATHS = ['/login', '/register', '/pending-approval']
 
 function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.some((p) => pathname.endsWith(p))
+}
+
+function localeFromRequest(request: NextRequest): string {
+  return resolveLocale(
+    localeFromPathname(request.nextUrl.pathname),
+    request.cookies.get(LOCALE_COOKIE)?.value
+  )
 }
 
 export async function proxy(request: NextRequest) {
@@ -36,7 +44,7 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user && !isPublicPath(pathnameWithoutLocale)) {
-    const locale = pathname.split('/')[1] || 'en'
+    const locale = localeFromRequest(request)
     return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
   }
 
@@ -49,14 +57,14 @@ export async function proxy(request: NextRequest) {
 
     if (profile?.role === 'therapist' && !profile.approved) {
       if (!pathnameWithoutLocale.startsWith('/pending-approval')) {
-        const locale = pathname.split('/')[1] || 'en'
+        const locale = localeFromRequest(request)
         return NextResponse.redirect(new URL(`/${locale}/pending-approval`, request.url))
       }
       return response
     }
 
     if (isPublicPath(pathnameWithoutLocale)) {
-      const locale = pathname.split('/')[1] || 'en'
+      const locale = localeFromRequest(request)
       const dest = profile?.role === 'admin'
         ? `/${locale}/admin/dashboard`
         : profile?.role === 'therapist'
@@ -66,15 +74,15 @@ export async function proxy(request: NextRequest) {
     }
 
     if (pathnameWithoutLocale.startsWith('/admin') && profile?.role !== 'admin') {
-      const locale = pathname.split('/')[1] || 'en'
+      const locale = localeFromRequest(request)
       return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
     }
     if (pathnameWithoutLocale.startsWith('/therapist') && profile?.role !== 'therapist') {
-      const locale = pathname.split('/')[1] || 'en'
+      const locale = localeFromRequest(request)
       return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
     }
     if (pathnameWithoutLocale.startsWith('/parent') && profile?.role !== 'parent') {
-      const locale = pathname.split('/')[1] || 'en'
+      const locale = localeFromRequest(request)
       return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
     }
   }

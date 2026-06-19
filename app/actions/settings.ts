@@ -1,18 +1,25 @@
 'use server'
 
+import { cookies } from 'next/headers'
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { LOCALE_COOKIE, localeCookieOptions, resolveLocale } from '@/lib/i18n/locale'
 
 export async function saveUserSettings(language: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
+  const locale = resolveLocale(language)
+
   const admin = createAdminClient()
   await admin
     .from('profiles')
-    .update({ preferred_language: language } as never)
+    .update({ preferred_language: locale } as never)
     .eq('id', user.id)
+
+  const cookieStore = await cookies()
+  cookieStore.set(LOCALE_COOKIE, locale, localeCookieOptions())
 
   revalidatePath('/', 'layout')
 }

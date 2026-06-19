@@ -2,9 +2,11 @@
 
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useActionState } from 'react'
 import { MatchCareLogo } from '@/components/app/matchcare-logo'
 import { register } from '@/app/actions/auth'
+import { localeFromPathname } from '@/lib/i18n/locale'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,6 +17,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 export default function RegisterPage() {
   const t = useTranslations('auth')
   const tc = useTranslations('common')
+  const pathname = usePathname()
+  const locale = localeFromPathname(pathname) ?? 'en'
   const [state, formAction, isPending] = useActionState(register, null)
 
   return (
@@ -38,6 +42,7 @@ export default function RegisterPage() {
             </Alert>
           )}
           <form action={formAction} className="space-y-4">
+            <input type="hidden" name="locale" value={locale} />
             <div className="space-y-2">
               <Label htmlFor="full_name">{t('fullName')}</Label>
               <Input id="full_name" name="full_name" required placeholder="Full name" />

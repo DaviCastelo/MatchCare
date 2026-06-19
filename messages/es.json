@@ -44,6 +44,8 @@
   "auth": {
     "login": "Iniciar Sesión",
     "logout": "Cerrar Sesión",
+    "logoutConfirmTitle": "¿Desea cerrar sesión?",
+    "logoutConfirmDescription": "Deberá iniciar sesión nuevamente para acceder al sistema.",
     "register": "Crear Cuenta",
     "email": "Correo",
     "password": "Contraseña",
@@ -95,7 +97,14 @@
     "availability": "Disponibilidad",
     "parentPhone": "Teléfono del Tutor",
     "noClients": "No hay clientes aún. Agregue el primero.",
-    "deleteConfirm": "¿Está seguro de que desea eliminar este cliente?"
+    "deleteConfirm": "¿Está seguro de que desea eliminar este cliente?",
+    "searchPlaceholder": "Buscar nombre, teléfono, puntaje, ciudad, idioma, notas...",
+    "clearFilters": "Limpiar filtros",
+    "noResults": "Ningún resultado coincide con los filtros actuales.",
+    "showing": "Mostrando {from}–{to} de {total}",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "pageOf": "Página {page} de {totalPages}"
   },
   "therapists": {
     "title": "Terapeutas",
@@ -113,7 +122,15 @@
     "approveConfirm": "¿Aprobar esta cuenta de terapeuta?",
     "rejectConfirm": "¿Rechazar esta cuenta de terapeuta?",
     "availabilityEmpty": "Complete su disponibilidad para comenzar a recibir sesiones",
-    "sexNotSet": "Sexo no informado"
+    "sexNotSet": "Sexo no informado",
+    "searchPlaceholder": "Buscar nombre, correo, teléfono, puntaje, ciudad, idioma, notas...",
+    "clearFilters": "Limpiar filtros",
+    "noResults": "Ningún resultado coincide con los filtros actuales.",
+    "noPending": "No hay aprobaciones pendientes.",
+    "showing": "Mostrando {from}–{to} de {total}",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "pageOf": "Página {page} de {totalPages}"
   },
   "match": {
     "title": "Herramienta de Match",
