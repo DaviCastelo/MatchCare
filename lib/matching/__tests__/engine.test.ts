@@ -400,6 +400,42 @@ describe('generateMultiTherapistSchedule — window packing', () => {
   })
 })
 
+// ─── Schedule failure diagnostics ────────────────────────────────────────────
+
+describe('generateMultiTherapistSchedule — failure reasons', () => {
+  it('reports too_many_therapists when the load cannot cover one 3h session each', () => {
+    // 6h load but 3 therapists → would need 3×3h = 9h > 6h
+    const result = generateMultiTherapistSchedule(
+      [makeMatchResult(therapistA, 0), makeMatchResult(therapistB, 0), makeMatchResult(therapistC, 0)],
+      6
+    )
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+    expect(result.reason).toBe('too_many_therapists')
+  })
+
+  it('succeeds for the same 6h load with only 2 therapists', () => {
+    const result = generateMultiTherapistSchedule(
+      [makeMatchResult(therapistA, 0), makeMatchResult(therapistB, 0)],
+      6
+    )
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.schedule.totalWeeklyHours).toBe(6)
+  })
+
+  it('reports incompatible_weekly_hours when the load has no 3–5h split', () => {
+    // 7h with 2 therapists: 7 >= 6 but not divisible by 3/4/5
+    const result = generateMultiTherapistSchedule(
+      [makeMatchResult(therapistA, 0), makeMatchResult(therapistB, 0)],
+      7
+    )
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+    expect(result.reason).toBe('incompatible_weekly_hours')
+  })
+})
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function toMin(t: string): number {

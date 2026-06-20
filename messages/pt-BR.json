@@ -174,7 +174,9 @@
     "scheduleError_no_valid_slots": "Nenhum slot válido se sobrepõe entre cliente e terapeuta.",
     "scheduleError_clinic_hours_conflict": "Não foi possível encaixar as sessões nos horários livres dos terapeutas selecionados. Tente outros terapeutas ou amplie a disponibilidade.",
     "scheduleError_min_therapist_count_not_met": "Não foi possível encontrar horários para 2+ terapeutas. Tente selecionar outros terapeutas.",
-    "scheduleError_therapist_capacity_exceeded": "Um ou mais terapeutas selecionados não têm capacidade restante esta semana."
+    "scheduleError_therapist_capacity_exceeded": "Um ou mais terapeutas selecionados não têm capacidade restante esta semana.",
+    "scheduleError_too_many_therapists": "Terapeutas demais para a carga deste cliente. Como cada sessão tem no mínimo 3h, selecione menos terapeutas (a carga semanal precisa caber em sessões de 3h cada).",
+    "scheduleError_incompatible_weekly_hours": "A carga semanal deste cliente não se divide em sessões de 3h a 5h. Ajuste as horas por semana (ex.: 6, 9, 12, 15)."
   },
   "sessions": {
     "title": "Sessões",

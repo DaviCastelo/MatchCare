@@ -174,7 +174,9 @@
     "scheduleError_no_valid_slots": "No hay franjas horarias válidas que se superpongan entre cliente y terapeuta.",
     "scheduleError_clinic_hours_conflict": "No se pudieron encajar las sesiones en los horarios libres de los terapeutas seleccionados. Pruebe otros terapeutas o amplíe la disponibilidad.",
     "scheduleError_min_therapist_count_not_met": "No se pudieron encontrar horarios para 2+ terapeutas. Intente seleccionar otros terapeutas.",
-    "scheduleError_therapist_capacity_exceeded": "Uno o más terapeutas seleccionados no tienen capacidad restante esta semana."
+    "scheduleError_therapist_capacity_exceeded": "Uno o más terapeutas seleccionados no tienen capacidad restante esta semana.",
+    "scheduleError_too_many_therapists": "Demasiados terapeutas para la carga de este cliente. Como cada sesión dura al menos 3h, seleccione menos terapeutas (la carga semanal debe caber en sesiones de 3h).",
+    "scheduleError_incompatible_weekly_hours": "La carga semanal de este cliente no se divide en sesiones de 3h a 5h. Ajuste las horas por semana (ej.: 6, 9, 12, 15)."
   },
   "sessions": {
     "title": "Sesiones",

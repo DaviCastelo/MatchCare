@@ -94,11 +94,23 @@ export function generateMultiTherapistSchedule(
   const anyEmpty = selectedResults.some((r) => totalOverlapHours(r.overlappingSlots) === 0)
   if (anyEmpty) return { ok: false, reason: 'no_valid_slots' }
 
+  const minSession = Math.min(...BLOCK_SIZES)
+
+  // Too many therapists for the weekly load: each gets >=1 session of >=minSession,
+  // so the load must be at least therapistCount * minSession.
+  if (weeklyHours < selectedResults.length * minSession) {
+    return { ok: false, reason: 'too_many_therapists' }
+  }
+
+  const candidates = buildScheduleCandidates(weeklyHours, selectedResults.length)
+
+  // No way to split the load into 3–5h sessions (e.g. 7h, 11h, 13h)
+  if (candidates.length === 0) {
+    return { ok: false, reason: 'incompatible_weekly_hours' }
+  }
+
   // Try longer session blocks first, falling back to shorter ones for tight availability
-  for (const { sessionCount, hoursEach } of buildScheduleCandidates(
-    weeklyHours,
-    selectedResults.length
-  )) {
+  for (const { sessionCount, hoursEach } of candidates) {
     const assignments = tryDistribute(selectedResults, sessionCount, hoursEach)
     if (assignments) {
       const totalWeeklyHours = assignments.reduce((acc, a) => acc + a.weeklyHours, 0)

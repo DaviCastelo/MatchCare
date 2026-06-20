@@ -53,4 +53,6 @@ export type ScheduleResult =
         | 'clinic_hours_conflict'
         | 'min_therapist_count_not_met'
         | 'therapist_capacity_exceeded'
+        | 'too_many_therapists'
+        | 'incompatible_weekly_hours'
     }

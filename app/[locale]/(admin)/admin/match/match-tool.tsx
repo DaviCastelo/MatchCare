@@ -77,9 +77,11 @@ export function MatchTool({ clients }: { clients: Client[]; locale: string }) {
     setScheduleResult(null)
     setAssignments(null)
     const id = result.therapist.id
+    const client = clients.find((c) => c.id === selectedClientId)
+    const max = Math.min(3, Math.floor((client?.weekly_hours ?? 12) / 3))
     setSelectedIds((prev) => {
       if (prev.includes(id)) return prev.filter((x) => x !== id)
-      if (prev.length >= 3) return prev
+      if (prev.length >= max) return prev
       return [...prev, id]
     })
   }
@@ -154,6 +156,8 @@ export function MatchTool({ clients }: { clients: Client[]; locale: string }) {
   }
 
   const selectedClient = clients.find((c) => c.id === selectedClientId)
+  // Max therapists this client's weekly load can support (each session >= 3h, each therapist >= 1 session)
+  const maxTherapists = Math.min(3, Math.floor((selectedClient?.weekly_hours ?? 12) / 3))
   const hasGenderWarning = selectedIds.some((id) =>
     matchOutput?.eligible.find(
       (r) => r.therapist.id === id && r.flags.includes('GENDER_SENSITIVITY_WARNING')
@@ -239,7 +243,7 @@ export function MatchTool({ clients }: { clients: Client[]; locale: string }) {
                   variant={selectedIds.length >= 2 ? 'default' : 'outline'}
                   className={selectedIds.length >= 2 ? 'bg-teal-600 text-white' : 'dark:border-gray-600 dark:text-gray-400'}
                 >
-                  {selectedIds.length}/2–3
+                  {selectedIds.length}/2–{maxTherapists}
                 </Badge>
               </span>
             )}
@@ -257,7 +261,7 @@ export function MatchTool({ clients }: { clients: Client[]; locale: string }) {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {matchOutput.eligible.map((result) => {
                 const isSelected = selectedIds.includes(result.therapist.id)
-                const isDisabled = !isSelected && selectedIds.length >= 3
+                const isDisabled = !isSelected && selectedIds.length >= maxTherapists
                 const pct = Math.min(100, (result.currentWeeklyHours / THERAPIST_WEEKLY_TARGET) * 100)
                 const hoursRemaining = Math.max(0, THERAPIST_WEEKLY_TARGET - result.currentWeeklyHours)
 

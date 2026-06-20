@@ -174,7 +174,9 @@
     "scheduleError_no_valid_slots": "No valid time slots overlap between client and therapist.",
     "scheduleError_clinic_hours_conflict": "Couldn't fit the sessions into the selected therapists' free time. Try other therapists or widen availability.",
     "scheduleError_min_therapist_count_not_met": "Could not find valid slots for 2+ therapists. Try selecting different therapists.",
-    "scheduleError_therapist_capacity_exceeded": "One or more selected therapists has no remaining capacity this week."
+    "scheduleError_therapist_capacity_exceeded": "One or more selected therapists has no remaining capacity this week.",
+    "scheduleError_too_many_therapists": "Too many therapists for this client's load. Since each session is at least 3h, select fewer therapists (the weekly load must fit into 3h sessions).",
+    "scheduleError_incompatible_weekly_hours": "This client's weekly load can't be split into 3–5h sessions. Adjust the weekly hours (e.g. 6, 9, 12, 15)."
   },
   "sessions": {
     "title": "Sessions",
