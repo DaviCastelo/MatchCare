@@ -8,6 +8,8 @@ import {
   subtractBusySlots,
 } from '@/lib/matching/engine'
 import { createSessions } from './sessions'
+import { CLINIC_ZIP } from '@/lib/matching/rules'
+import { haversineMiles, type Coords } from '@/lib/matching/geo'
 import type { Client } from '@/lib/types/client'
 import type { Therapist } from '@/lib/types/therapist'
 import type { MatchOutput, MatchResult, ScheduleResult, Slot } from '@/lib/types/matching'
@@ -31,6 +33,41 @@ function buildBusyMap(
     })
   }
   return busy
+}
+
+// Resolve the ZIP a therapist must travel to for this client's sessions.
+function sessionLocationZip(client: Client): string | null {
+  if (client.preferred_session_location === 'Home') return client.zip_code
+  if (client.preferred_session_location === 'School') return client.school_zip_code ?? client.zip_code
+  return CLINIC_ZIP
+}
+
+// therapistId → miles from the session location to the therapist's ZIP (null if unknown).
+// Resilient: if the zip_codes table is missing/unseeded, every distance is null
+// (therapists are still matched, just without a proximity bonus).
+async function buildDistanceMap(
+  supabase: ReturnType<typeof createAdminClient>,
+  client: Client,
+  therapists: Therapist[]
+): Promise<Record<string, number | null>> {
+  const originZip = sessionLocationZip(client)
+  const zips = new Set<string>()
+  if (originZip) zips.add(originZip)
+  for (const t of therapists) if (t.zip_code) zips.add(t.zip_code)
+
+  const coords: Record<string, Coords> = {}
+  if (zips.size > 0) {
+    const { data } = await supabase.from('zip_codes').select('zip, lat, lng').in('zip', [...zips])
+    for (const row of data ?? []) coords[row.zip] = { lat: row.lat, lng: row.lng }
+  }
+
+  const origin = originZip ? coords[originZip] : undefined
+  const map: Record<string, number | null> = {}
+  for (const t of therapists) {
+    const dest = t.zip_code ? coords[t.zip_code] : undefined
+    map[t.id] = origin && dest ? haversineMiles(origin, dest) : null
+  }
+  return map
 }
 
 export async function runMatch(clientId: string): Promise<MatchOutput> {
@@ -69,7 +106,15 @@ export async function runMatch(clientId: string): Promise<MatchOutput> {
     (t) => (WEEKLY_TARGET - (therapistHoursMap[t.id] ?? 0)) >= 3
   ) as Therapist[]
 
-  return findEligibleTherapists(client as Client, available, therapistHoursMap, busyByTherapist)
+  const distanceByTherapist = await buildDistanceMap(supabase, client as Client, available)
+
+  return findEligibleTherapists(
+    client as Client,
+    available,
+    therapistHoursMap,
+    busyByTherapist,
+    distanceByTherapist
+  )
 }
 
 // Called after the admin selects 2-3 therapists and clicks "Generate Schedule"
@@ -125,6 +170,7 @@ export async function getScheduleForTherapists(
       overlappingSlots,
       flags: [],
       currentWeeklyHours: therapistHoursMap[id] ?? 0,
+      distanceMiles: null,
     }]
   })
 

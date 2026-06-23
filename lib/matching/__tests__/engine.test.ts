@@ -77,6 +77,49 @@ describe('findEligibleTherapists', () => {
   })
 })
 
+// ─── findEligibleTherapists — proximity ──────────────────────────────────────
+
+describe('findEligibleTherapists — proximity', () => {
+  const homeClient = { ...baseClient, preferred_session_location: 'Home' as const }
+
+  it('blocks a Home therapist beyond 20 miles (failedRule proximity)', () => {
+    const result = findEligibleTherapists(homeClient, [therapistA], {}, {}, { 'therapist-A': 25 })
+    expect(result.eligible).toHaveLength(0)
+    expect(result.disqualified[0].failedRule).toBe('proximity')
+  })
+
+  it('allows a Home therapist within 20 miles', () => {
+    const result = findEligibleTherapists(homeClient, [therapistA], {}, {}, { 'therapist-A': 10 })
+    expect(result.eligible.map((r) => r.therapist.id)).toContain('therapist-A')
+  })
+
+  it('does NOT block a far therapist for Clinic sessions (distance only lowers the score)', () => {
+    const result = findEligibleTherapists(baseClient, [therapistA], {}, {}, { 'therapist-A': 50 })
+    expect(result.eligible.map((r) => r.therapist.id)).toContain('therapist-A')
+  })
+
+  it('does NOT block a Home therapist when distance is unknown (null)', () => {
+    const result = findEligibleTherapists(homeClient, [therapistA], {}, {}, { 'therapist-A': null })
+    expect(result.eligible.map((r) => r.therapist.id)).toContain('therapist-A')
+  })
+
+  it('sets distanceMiles on each eligible result', () => {
+    const result = findEligibleTherapists(baseClient, [therapistA], {}, {}, { 'therapist-A': 7 })
+    expect(result.eligible[0].distanceMiles).toBe(7)
+  })
+
+  it('ranks a closer therapist above a farther one, all else equal', () => {
+    const result = findEligibleTherapists(
+      baseClient,
+      [therapistA, therapistB],
+      { 'therapist-A': 0, 'therapist-B': 0 },
+      {},
+      { 'therapist-A': 2, 'therapist-B': 18 }
+    )
+    expect(result.eligible[0].therapist.id).toBe('therapist-A')
+  })
+})
+
 // ─── generateMultiTherapistSchedule ──────────────────────────────────────────
 
 describe('generateMultiTherapistSchedule', () => {

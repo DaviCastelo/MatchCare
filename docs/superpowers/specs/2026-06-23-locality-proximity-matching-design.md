@@ -61,8 +61,9 @@ ZIP-centroid distance is a strong proxy for commute within a metro region; ZIP a
 | `lat` | `double precision` | centroid latitude |
 | `lng` | `double precision` | centroid longitude |
 
-- Seeded **once** from the public-domain US Census Gazetteer, filtered to `state = 'CA'`. License: public domain (no attribution required).
-- Delivered as a seed migration (SQL `INSERT`s or `COPY` from a bundled CSV under `supabase/seed/`).
+- Seeded from the public-domain US Census Gazetteer (ZCTA centroids). License: public domain (no attribution required).
+- **Nationwide, state-agnostic:** seed **all US states** (~33k rows — trivial for Postgres). The `state` column exists to scope/filter when desired, but no per-state migration is ever needed; "add another state later" requires zero schema work.
+- Built by a **re-runnable script** (`supabase/seed/build_zip_codes.*`) that downloads the Gazetteer and emits a committed CSV; the migration loads that CSV (`COPY`/inserts). Re-running refreshes or extends the data.
 
 ### 4.2 Column additions
 

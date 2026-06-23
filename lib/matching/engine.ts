@@ -15,16 +15,19 @@ import {
   totalOverlapHours,
   subtractBusySlots,
 } from './rules'
+import { HOME_MAX_MILES } from './geo'
 
 const MIN_OVERLAP_HOURS = 3
 
 // therapistHoursMap: therapistId → hours already scheduled this week (across all clients)
 // busyByTherapist: therapistId → time slots already booked (other clients), excluded from free time
+// distanceByTherapist: therapistId → miles from the session location to the therapist (null if unknown)
 export function findEligibleTherapists(
   client: Client,
   therapists: Therapist[],
   therapistHoursMap: Record<string, number>,
-  busyByTherapist: Record<string, Slot[]> = {}
+  busyByTherapist: Record<string, Slot[]> = {},
+  distanceByTherapist: Record<string, number | null> = {}
 ): MatchOutput {
   const eligible: MatchOutput['eligible'] = []
   const disqualified: MatchOutput['disqualified'] = []
@@ -33,6 +36,19 @@ export function findEligibleTherapists(
     const failed = hardRules.find((rule) => !rule.check(client, therapist))
     if (failed) {
       disqualified.push({ therapist, failedRule: failed.name })
+      continue
+    }
+
+    const distanceMiles = distanceByTherapist[therapist.id] ?? null
+
+    // Proximity hard rule: a Home session beyond HOME_MAX_MILES is blocked.
+    // Unknown distance (null) does NOT block — it is flagged in the score instead.
+    if (
+      client.preferred_session_location === 'Home' &&
+      distanceMiles != null &&
+      distanceMiles > HOME_MAX_MILES
+    ) {
+      disqualified.push({ therapist, failedRule: 'proximity' })
       continue
     }
 
@@ -49,9 +65,15 @@ export function findEligibleTherapists(
     }
 
     const currentWeeklyHours = therapistHoursMap[therapist.id] ?? 0
-    const { score, flags } = computeScore(client, therapist, overlappingSlots, currentWeeklyHours)
+    const { score, flags } = computeScore(
+      client,
+      therapist,
+      overlappingSlots,
+      currentWeeklyHours,
+      distanceMiles
+    )
 
-    eligible.push({ therapist, score, overlappingSlots, flags, currentWeeklyHours })
+    eligible.push({ therapist, score, overlappingSlots, flags, currentWeeklyHours, distanceMiles })
   }
 
   return {
