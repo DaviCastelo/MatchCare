@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { AddressFields } from '@/components/app/address-fields'
-import { getLocationOptions } from '@/app/actions/locations'
+import { getStates } from '@/app/actions/locations'
 
 export default async function NewTherapistPage({
   params,
@@ -17,7 +17,7 @@ export default async function NewTherapistPage({
   const { locale } = await params
   const t = await getTranslations('therapists')
   const tc = await getTranslations('common')
-  const locationOptions = await getLocationOptions()
+  const states = await getStates()
 
   async function handleCreate(formData: FormData) {
     'use server'
@@ -81,8 +81,7 @@ export default async function NewTherapistPage({
                 <Input name="phone" required />
               </div>
               <AddressFields
-                states={locationOptions.states}
-                cities={locationOptions.cities}
+                states={states}
                 requireZip
               />
               <div className="space-y-2">

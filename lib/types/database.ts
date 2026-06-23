@@ -201,6 +201,14 @@ export type Database = {
         Insert: Omit<Database['public']['Tables']['therapist_approval_requests']['Row'], 'id' | 'created_at'>
         Update: Partial<Database['public']['Tables']['therapist_approval_requests']['Insert']>
       }
+      // View: distinct states present in zip_codes (read-only; powers the State dropdown).
+      zip_code_states: {
+        Row: {
+          state: string | null
+        }
+        Insert: Database['public']['Tables']['zip_code_states']['Row']
+        Update: Partial<Database['public']['Tables']['zip_code_states']['Row']>
+      }
     }
   }
 }

@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { AvailabilityEditor } from '@/components/app/availability-editor'
 import { AddressFields } from '@/components/app/address-fields'
-import { getLocationOptions } from '@/app/actions/locations'
+import { getStates } from '@/app/actions/locations'
 
 export default async function ClientDetailPage({
   params,
@@ -21,7 +21,7 @@ export default async function ClientDetailPage({
   const client = await getClient(id)
   const t = await getTranslations('clients')
   const tc = await getTranslations('common')
-  const locationOptions = await getLocationOptions()
+  const states = await getStates()
 
   async function handleUpdate(formData: FormData) {
     'use server'
@@ -82,8 +82,7 @@ export default async function ClientDetailPage({
                 <Input name="language" defaultValue={client.language} required />
               </div>
               <AddressFields
-                states={locationOptions.states}
-                cities={locationOptions.cities}
+                states={states}
                 defaultStreet={client.street_address}
                 defaultCity={client.city}
                 defaultState={client.state}

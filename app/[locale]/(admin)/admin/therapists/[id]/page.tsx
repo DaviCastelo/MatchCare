@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { AvailabilityEditor } from '@/components/app/availability-editor'
 import { AddressFields } from '@/components/app/address-fields'
-import { getLocationOptions } from '@/app/actions/locations'
+import { getStates } from '@/app/actions/locations'
 import { createClient } from '@/lib/supabase/server'
 import { CheckCircle, XCircle } from 'lucide-react'
 
@@ -24,7 +24,7 @@ export default async function TherapistDetailPage({
   const therapist = await getTherapist(id)
   const t = await getTranslations('therapists')
   const tc = await getTranslations('common')
-  const locationOptions = await getLocationOptions()
+  const states = await getStates()
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -107,8 +107,7 @@ export default async function TherapistDetailPage({
                 <Input name="language" defaultValue={therapist.language} required />
               </div>
               <AddressFields
-                states={locationOptions.states}
-                cities={locationOptions.cities}
+                states={states}
                 defaultStreet={therapist.street_address}
                 defaultCity={therapist.city}
                 defaultState={therapist.state}

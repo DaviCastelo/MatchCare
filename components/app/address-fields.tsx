@@ -1,14 +1,13 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { lookupZip } from '@/app/actions/locations'
+import { lookupZip, getCitiesForState } from '@/app/actions/locations'
 
 type AddressFieldsProps = {
   states: string[]
-  cities: string[]
   defaultStreet?: string | null
   defaultCity?: string | null
   defaultState?: string | null
@@ -20,13 +19,14 @@ type AddressFieldsProps = {
 
 /**
  * Street / ZIP / State / City address block used by the client & therapist forms.
- * - State is a dropdown (Select); City is a typeable dropdown (input + datalist).
+ * - State is a dropdown (Select); City is a typeable dropdown (input + datalist),
+ *   whose options are scoped to the selected state (fetched on demand — the
+ *   nationwide city list is too large to ship whole).
  * - Typing a valid 5-digit ZIP auto-fills City and State from the zip_codes table.
  * All inputs carry `name` attributes so they submit with the surrounding <form>.
  */
 export function AddressFields({
   states,
-  cities,
   defaultStreet,
   defaultCity,
   defaultState,
@@ -38,10 +38,23 @@ export function AddressFields({
   const [zip, setZip] = useState(defaultZip ?? '')
   const [city, setCity] = useState(defaultCity ?? '')
   const [stateVal, setStateVal] = useState(defaultState || 'CA')
+  const [cities, setCities] = useState<string[]>([])
   const [isLooking, startLookup] = useTransition()
 
   // Keep the current value selectable even if it isn't in the seeded list yet.
   const stateOptions = Array.from(new Set([stateVal, ...states].filter(Boolean)))
+
+  // Load the city suggestions for the active state (and refresh when it changes,
+  // including when a ZIP lookup sets a new state).
+  useEffect(() => {
+    let active = true
+    getCitiesForState(stateVal).then((list) => {
+      if (active) setCities(list)
+    })
+    return () => {
+      active = false
+    }
+  }, [stateVal])
 
   function onZipChange(value: string) {
     const v = value.replace(/\D/g, '').slice(0, 5)
@@ -49,8 +62,8 @@ export function AddressFields({
     if (v.length === 5) {
       startLookup(async () => {
         const hit = await lookupZip(v)
-        if (hit?.city) setCity(hit.city)
         if (hit?.state) setStateVal(hit.state)
+        if (hit?.city) setCity(hit.city)
       })
     }
   }

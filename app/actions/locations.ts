@@ -18,19 +18,25 @@ export async function lookupZip(
   return data ?? null
 }
 
-// Distinct states and cities for the address dropdowns. Cheap (a few thousand
-// rows); deduped in memory. Cities power a <datalist> (typeable dropdown).
-export async function getLocationOptions(): Promise<{ states: string[]; cities: string[] }> {
+// Distinct states for the State dropdown (read from the zip_code_states view —
+// ~50 rows, cheap). Nationwide-safe: no full-table scan per form load.
+export async function getStates(): Promise<string[]> {
   const supabase = createAdminClient()
-  const { data } = await supabase.from('zip_codes').select('city, state')
-  const states = new Set<string>()
+  const { data } = await supabase.from('zip_code_states').select('state')
+  return (data ?? [])
+    .map((r) => r.state as string | null)
+    .filter((s): s is string => !!s)
+    .sort()
+}
+
+// Distinct cities for one state, for the City typeable dropdown (<datalist>).
+// Scoped by state so we never ship the full ~19k-city nationwide list.
+export async function getCitiesForState(state: string): Promise<string[]> {
+  const s = (state ?? '').trim()
+  if (!s) return []
+  const supabase = createAdminClient()
+  const { data } = await supabase.from('zip_codes').select('city').eq('state', s)
   const cities = new Set<string>()
-  for (const r of data ?? []) {
-    if (r.state) states.add(r.state)
-    if (r.city) cities.add(r.city)
-  }
-  return {
-    states: [...states].sort(),
-    cities: [...cities].sort(),
-  }
+  for (const r of data ?? []) if (r.city) cities.add(r.city)
+  return [...cities].sort()
 }

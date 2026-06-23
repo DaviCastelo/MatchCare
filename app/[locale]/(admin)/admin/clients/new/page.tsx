@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { AddressFields } from '@/components/app/address-fields'
-import { getLocationOptions } from '@/app/actions/locations'
+import { getStates } from '@/app/actions/locations'
 
 export default async function NewClientPage({
   params,
@@ -25,7 +25,7 @@ export default async function NewClientPage({
 
   const supabase = await createSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const locationOptions = await getLocationOptions()
+  const states = await getStates()
 
   async function handleCreate(formData: FormData) {
     'use server'
@@ -107,8 +107,7 @@ export default async function NewClientPage({
                 <Input name="language" placeholder="e.g. Portuguese" required />
               </div>
               <AddressFields
-                states={locationOptions.states}
-                cities={locationOptions.cities}
+                states={states}
                 requireZip
                 includeSchoolZip
               />
