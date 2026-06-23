@@ -1,6 +1,13 @@
 import type { Therapist } from './therapist'
 
-export type MatchRuleName = 'scoreCompatibility' | 'proximity' | 'availabilityOverlap'
+export type MatchRuleName =
+  | 'scoreCompatibility'
+  | 'proximity'
+  | 'availabilityOverlap'
+  | 'requiredSex'
+  | 'requiredLanguage'
+  | 'requiredRole'
+  | 'noNewTherapist'
 
 export type MatchFlag =
   | 'GENDER_SENSITIVITY_WARNING'

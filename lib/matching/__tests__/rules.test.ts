@@ -2,6 +2,11 @@ import { describe, it, expect } from 'vitest'
 import {
   checkScoreCompatibility,
   checkAvailabilityOverlap,
+  checkRequiredSex,
+  checkRequiredLanguage,
+  checkRequiredRole,
+  checkNoNewTherapist,
+  therapistSpeaks,
   computeScore,
   computeOverlappingSlots,
   hasGenderMismatch,
@@ -62,6 +67,45 @@ describe('checkAvailabilityOverlap', () => {
       ],
     }
     expect(checkAvailabilityOverlap(baseClient, noOverlapTherapist)).toBe(false)
+  })
+})
+
+// ─── match requirements (the spreadsheet "Type of BI" rules) ──────────────────
+
+describe('match requirements', () => {
+  it('requiredSex only matches the required sex (no-op when unset)', () => {
+    const c = { ...baseClient, required_sex: 'Female' as const }
+    expect(checkRequiredSex(c, { ...therapistA, sex: 'Female' as const })).toBe(true)
+    expect(checkRequiredSex(c, { ...therapistA, sex: 'Male' as const })).toBe(false)
+    expect(checkRequiredSex(baseClient, { ...therapistA, sex: 'Male' as const })).toBe(true)
+  })
+
+  it('requiredLanguage checks languages[] and language (no-op when unset)', () => {
+    const c = { ...baseClient, required_language: 'Spanish' }
+    expect(checkRequiredLanguage(c, { ...therapistA, languages: ['Spanish'] })).toBe(true)
+    expect(checkRequiredLanguage(c, { ...therapistA, language: 'Spanish', languages: null })).toBe(true)
+    expect(checkRequiredLanguage(c, { ...therapistA, language: 'English', languages: ['pt-BR'] })).toBe(false)
+    expect(checkRequiredLanguage(baseClient, therapistA)).toBe(true)
+  })
+
+  it('requiredRole must equal therapist.role (no-op when unset)', () => {
+    const c = { ...baseClient, required_role: 'RBT' }
+    expect(checkRequiredRole(c, { ...therapistA, role: 'RBT' })).toBe(true)
+    expect(checkRequiredRole(c, { ...therapistA, role: 'BI' })).toBe(false)
+    expect(checkRequiredRole(baseClient, { ...therapistA, role: 'BI' })).toBe(true)
+  })
+
+  it('noNewTherapist excludes new hires (no-op when unset)', () => {
+    const c = { ...baseClient, no_new_therapist: true }
+    expect(checkNoNewTherapist(c, { ...therapistA, is_new_hire: true })).toBe(false)
+    expect(checkNoNewTherapist(c, { ...therapistA, is_new_hire: false })).toBe(true)
+    expect(checkNoNewTherapist(baseClient, { ...therapistA, is_new_hire: true })).toBe(true)
+  })
+
+  it('therapistSpeaks is case-insensitive across language + languages[]', () => {
+    expect(therapistSpeaks({ ...therapistA, language: 'English', languages: ['Spanish'] }, 'spanish')).toBe(true)
+    expect(therapistSpeaks({ ...therapistA, language: 'English', languages: null }, 'english')).toBe(true)
+    expect(therapistSpeaks({ ...therapistA, language: 'English', languages: ['Spanish'] }, 'mandarin')).toBe(false)
   })
 })
 
@@ -134,7 +178,7 @@ describe('computeScore', () => {
 
   it('isolates the +10 language contribution', () => {
     const slots = computeOverlappingSlots(baseClient, therapistA)
-    const differentLangTherapist = { ...therapistA, language: 'en' }
+    const differentLangTherapist = { ...therapistA, language: 'en', languages: null }
     const { score: sameLang } = computeScore(baseClient, therapistA, slots, 0, 2)
     const { score: diffLang } = computeScore(baseClient, differentLangTherapist, slots, 0, 2)
     // same distance in both → only language differs → +10

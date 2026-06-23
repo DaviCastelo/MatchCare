@@ -26,6 +26,8 @@ export default async function ClientDetailPage({
   async function handleUpdate(formData: FormData) {
     'use server'
     const { locale, id } = await params
+    const rawReqSex = formData.get('required_sex') as string
+    const rawReqRole = formData.get('required_role') as string
     await updateClient(id, {
       full_name: formData.get('full_name') as string,
       parent_phone: formData.get('parent_phone') as string,
@@ -42,6 +44,15 @@ export default async function ClientDetailPage({
       preferred_session_location: formData.get('preferred_session_location') as 'Clinic' | 'School' | 'Home',
       weekly_hours: Number(formData.get('weekly_hours')),
       health_insurance: formData.get('health_insurance') as string || null,
+      dob: (formData.get('dob') as string) || null,
+      auth_exp_date: (formData.get('auth_exp_date') as string) || null,
+      two_to_one_eligible: formData.get('two_to_one_eligible') === 'on',
+      assigned_bcba: (formData.get('assigned_bcba') as string) || null,
+      assigned_supervisor: (formData.get('assigned_supervisor') as string) || null,
+      required_sex: rawReqSex && rawReqSex !== 'none' ? (rawReqSex as 'Male' | 'Female') : null,
+      required_language: (formData.get('required_language') as string) || null,
+      required_role: rawReqRole && rawReqRole !== 'none' ? rawReqRole : null,
+      no_new_therapist: formData.get('no_new_therapist') === 'on',
       notes: formData.get('notes') as string || null,
     })
     redirect(`/${locale}/admin/clients`)
@@ -125,6 +136,63 @@ export default async function ClientDetailPage({
                 <Label>{tc('notes')}</Label>
                 <Textarea name="notes" defaultValue={client.notes ?? ''} rows={2} />
               </div>
+
+              <div className="col-span-2 mt-2 pt-3 border-t border-gray-100 dark:border-gray-800">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Clinical &amp; Matching Requirements</p>
+              </div>
+              <div className="space-y-2">
+                <Label>Date of Birth</Label>
+                <Input name="dob" type="date" defaultValue={client.dob ?? ''} />
+              </div>
+              <div className="space-y-2">
+                <Label>Auth Expiration</Label>
+                <Input name="auth_exp_date" type="date" defaultValue={client.auth_exp_date ?? ''} />
+              </div>
+              <div className="space-y-2">
+                <Label>Assigned BCBA</Label>
+                <Input name="assigned_bcba" defaultValue={client.assigned_bcba ?? ''} placeholder="Name" />
+              </div>
+              <div className="space-y-2">
+                <Label>Supervisor</Label>
+                <Input name="assigned_supervisor" defaultValue={client.assigned_supervisor ?? ''} placeholder="Name" />
+              </div>
+              <div className="space-y-2">
+                <Label>Required therapist sex</Label>
+                <Select name="required_sex" defaultValue={client.required_sex ?? 'none'}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No requirement</SelectItem>
+                    <SelectItem value="Male">{tc('male')}</SelectItem>
+                    <SelectItem value="Female">{tc('female')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Required role</Label>
+                <Select name="required_role" defaultValue={client.required_role ?? 'none'}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No requirement</SelectItem>
+                    <SelectItem value="BCBA">BCBA</SelectItem>
+                    <SelectItem value="Supervisor">Supervisor</SelectItem>
+                    <SelectItem value="Mid-Level">Mid-Level</SelectItem>
+                    <SelectItem value="BI">BI</SelectItem>
+                    <SelectItem value="RBT">RBT</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Required language</Label>
+                <Input name="required_language" defaultValue={client.required_language ?? ''} placeholder="e.g. Spanish" />
+              </div>
+              <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 pt-7">
+                <input type="checkbox" name="two_to_one_eligible" defaultChecked={client.two_to_one_eligible} className="size-4 rounded border-gray-300" />
+                2:1 eligible
+              </label>
+              <label className="col-span-2 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <input type="checkbox" name="no_new_therapist" defaultChecked={client.no_new_therapist} className="size-4 rounded border-gray-300" />
+                No new BI / therapist (exclude new hires)
+              </label>
             </div>
             <Button type="submit" className="bg-teal-600 hover:bg-teal-700">{tc('save')}</Button>
           </form>

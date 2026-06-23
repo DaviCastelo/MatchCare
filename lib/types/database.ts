@@ -42,6 +42,9 @@ export type Database = {
           state: string | null
           zip_code: string | null
           language: string
+          languages: string[] | null
+          role: string | null
+          is_new_hire: boolean
           last_score_review_date: string | null
           score_reviewer_supervisor: string | null
           notes: string | null
@@ -49,11 +52,14 @@ export type Database = {
         }
         Insert: Omit<
           Database['public']['Tables']['therapists']['Row'],
-          'created_at' | 'street_address' | 'state' | 'zip_code'
+          'created_at' | 'street_address' | 'state' | 'zip_code' | 'languages' | 'role' | 'is_new_hire'
         > & {
           street_address?: string | null
           state?: string | null
           zip_code?: string | null
+          languages?: string[] | null
+          role?: string | null
+          is_new_hire?: boolean
         }
         Update: Partial<Database['public']['Tables']['therapists']['Insert']>
       }
@@ -76,18 +82,50 @@ export type Database = {
           preferred_session_location: 'Clinic' | 'School' | 'Home'
           weekly_hours: number
           health_insurance: string | null
+          dob: string | null
+          auth_exp_date: string | null
+          two_to_one_eligible: boolean
+          assigned_bcba: string | null
+          assigned_supervisor: string | null
+          required_sex: 'Male' | 'Female' | null
+          required_language: string | null
+          required_role: string | null
+          no_new_therapist: boolean
           notes: string | null
           created_by: string | null
           created_at: string
         }
         Insert: Omit<
           Database['public']['Tables']['clients']['Row'],
-          'id' | 'created_at' | 'street_address' | 'state' | 'zip_code' | 'school_zip_code'
+          | 'id'
+          | 'created_at'
+          | 'street_address'
+          | 'state'
+          | 'zip_code'
+          | 'school_zip_code'
+          | 'dob'
+          | 'auth_exp_date'
+          | 'two_to_one_eligible'
+          | 'assigned_bcba'
+          | 'assigned_supervisor'
+          | 'required_sex'
+          | 'required_language'
+          | 'required_role'
+          | 'no_new_therapist'
         > & {
           street_address?: string | null
           state?: string | null
           zip_code?: string | null
           school_zip_code?: string | null
+          dob?: string | null
+          auth_exp_date?: string | null
+          two_to_one_eligible?: boolean
+          assigned_bcba?: string | null
+          assigned_supervisor?: string | null
+          required_sex?: 'Male' | 'Female' | null
+          required_language?: string | null
+          required_role?: string | null
+          no_new_therapist?: boolean
         }
         Update: Partial<Database['public']['Tables']['clients']['Insert']>
       }

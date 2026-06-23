@@ -40,6 +40,11 @@ export default async function NewTherapistPage({
     // Profile is auto-created by trigger; approve immediately since admin is creating
     await supabase.from('profiles').update({ approved: true }).eq('id', authData.user.id)
 
+    const languages = ((formData.get('languages') as string) || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+
     await supabase.from('therapists').insert({
       id: authData.user.id,
       email: formData.get('email') as string,
@@ -52,6 +57,9 @@ export default async function NewTherapistPage({
       state: (formData.get('state') as string) || 'CA',
       zip_code: ((formData.get('zip_code') as string) || '').trim() || null,
       language: formData.get('language') as string,
+      languages: languages.length ? languages : null,
+      role: (formData.get('role') as string) || 'BI',
+      is_new_hire: formData.get('is_new_hire') === 'on',
     })
 
     redirect(`/${locale}/admin/therapists`)
@@ -102,10 +110,31 @@ export default async function NewTherapistPage({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="col-span-2 space-y-2">
+              <div className="space-y-2">
                 <Label>{t('professionalScore')} (1-9)</Label>
                 <Input name="professional_score" type="number" min={1} max={9} defaultValue="1" required />
               </div>
+              <div className="space-y-2">
+                <Label>Role</Label>
+                <Select name="role" defaultValue="BI">
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="BCBA">BCBA</SelectItem>
+                    <SelectItem value="Supervisor">Supervisor</SelectItem>
+                    <SelectItem value="Mid-Level">Mid-Level</SelectItem>
+                    <SelectItem value="BI">BI</SelectItem>
+                    <SelectItem value="RBT">RBT</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label>Other Languages <span className="text-xs text-gray-400">(comma-separated)</span></Label>
+                <Input name="languages" placeholder="Spanish, Mandarin" />
+              </div>
+              <label className="col-span-2 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <input type="checkbox" name="is_new_hire" className="size-4 rounded border-gray-300" />
+                New hire (excluded for clients marked “no new BI”)
+              </label>
             </div>
             <div className="flex gap-3">
               <Button type="submit" className="bg-teal-600 hover:bg-teal-700">{tc('save')}</Button>
