@@ -45,6 +45,9 @@ export default async function NewTherapistPage({
       professional_score: Number(formData.get('professional_score')),
       sex: formData.get('sex') as 'Male' | 'Female',
       city: formData.get('city') as string,
+      street_address: (formData.get('street_address') as string) || null,
+      state: (formData.get('state') as string) || 'CA',
+      zip_code: ((formData.get('zip_code') as string) || '').trim() || null,
       language: formData.get('language') as string,
     })
 
@@ -74,9 +77,23 @@ export default async function NewTherapistPage({
                 <Label>{tc('phone')}</Label>
                 <Input name="phone" required />
               </div>
+              <div className="col-span-2 space-y-2">
+                <Label>Street Address</Label>
+                <Input name="street_address" placeholder="123 Main St" />
+              </div>
               <div className="space-y-2">
                 <Label>{tc('city')}</Label>
                 <Input name="city" required />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2">
+                  <Label>State</Label>
+                  <Input name="state" defaultValue="CA" maxLength={2} />
+                </div>
+                <div className="space-y-2">
+                  <Label>ZIP</Label>
+                  <Input name="zip_code" required placeholder="95112" inputMode="numeric" pattern="\d{5}" title="5-digit ZIP" />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label>{tc('language')}</Label>

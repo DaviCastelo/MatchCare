@@ -33,6 +33,10 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# matchcare zip seed artifacts (CSV snapshot is committed; cache + generated SQL are not)
+/supabase/seed/.cache_US.zip
+/supabase/seed/zip_codes_*.sql
+
 # vercel
 .vercel
 

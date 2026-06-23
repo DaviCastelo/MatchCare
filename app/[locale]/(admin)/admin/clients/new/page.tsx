@@ -58,6 +58,10 @@ export default async function NewClientPage({
       sex: formData.get('sex') as 'Male' | 'Female',
       language: formData.get('language') as string,
       city: formData.get('city') as string,
+      street_address: (formData.get('street_address') as string) || null,
+      state: (formData.get('state') as string) || 'CA',
+      zip_code: ((formData.get('zip_code') as string) || '').trim() || null,
+      school_zip_code: ((formData.get('school_zip_code') as string) || '').trim() || null,
       preferred_session_location: formData.get('preferred_session_location') as 'Clinic' | 'School' | 'Home',
       weekly_hours: Number(formData.get('weekly_hours')),
       health_insurance: (formData.get('health_insurance') as string) || null,
@@ -96,12 +100,30 @@ export default async function NewClientPage({
                 </Select>
               </div>
               <div className="space-y-2">
+                <Label>{tc('language')}</Label>
+                <Input name="language" placeholder="e.g. Portuguese" required />
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label>Street Address</Label>
+                <Input name="street_address" placeholder="123 Main St" />
+              </div>
+              <div className="space-y-2">
                 <Label>{tc('city')}</Label>
                 <Input name="city" required />
               </div>
-              <div className="space-y-2">
-                <Label>{tc('language')}</Label>
-                <Input name="language" placeholder="e.g. Portuguese" required />
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2">
+                  <Label>State</Label>
+                  <Input name="state" defaultValue="CA" maxLength={2} />
+                </div>
+                <div className="space-y-2">
+                  <Label>ZIP</Label>
+                  <Input name="zip_code" required placeholder="95112" inputMode="numeric" pattern="\d{5}" title="5-digit ZIP" />
+                </div>
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label>School ZIP <span className="text-xs text-gray-400">(if session location is School)</span></Label>
+                <Input name="school_zip_code" placeholder="95112" inputMode="numeric" pattern="\d{5}" title="5-digit ZIP" />
               </div>
               <div className="space-y-2">
                 <Label>{t('parentPhone')}</Label>
