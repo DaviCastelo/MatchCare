@@ -13,6 +13,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { AddressFields } from '@/components/app/address-fields'
 import { getStates } from '@/app/actions/locations'
+import { ClinicalProfileFields } from '@/components/app/clinical-profile-fields'
+import { parseClinicalFields } from '@/lib/admin/clinical-fields'
 
 export default async function NewClientPage({
   params,
@@ -80,6 +82,7 @@ export default async function NewClientPage({
       required_language: (formData.get('required_language') as string) || null,
       required_role: rawReqRole && rawReqRole !== 'none' ? rawReqRole : null,
       no_new_therapist: formData.get('no_new_therapist') === 'on',
+      ...parseClinicalFields(formData),
       notes: (formData.get('notes') as string) || null,
       parent_id: parentId,
       created_by: user?.id ?? null,
@@ -159,6 +162,13 @@ export default async function NewClientPage({
                 <Textarea name="notes" rows={2} placeholder="Optional" />
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle className="text-base">Clinical Profile</CardTitle></CardHeader>
+          <CardContent>
+            <ClinicalProfileFields />
           </CardContent>
         </Card>
 

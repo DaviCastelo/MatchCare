@@ -91,6 +91,20 @@ export type Database = {
           required_language: string | null
           required_role: string | null
           no_new_therapist: boolean
+          behaviors: string[] | null
+          behavior_severity: string | null
+          communication_type: string | null
+          receptive_language: string | null
+          expressive_language: string | null
+          socialization: string | null
+          physical_contact_needs: string | null
+          client_size: string | null
+          potty_training: string | null
+          triggers: string | null
+          languages_at_home: string | null
+          parent_involvement: string | null
+          strengths: string | null
+          limitations: string | null
           notes: string | null
           created_by: string | null
           created_at: string
@@ -112,6 +126,20 @@ export type Database = {
           | 'required_language'
           | 'required_role'
           | 'no_new_therapist'
+          | 'behaviors'
+          | 'behavior_severity'
+          | 'communication_type'
+          | 'receptive_language'
+          | 'expressive_language'
+          | 'socialization'
+          | 'physical_contact_needs'
+          | 'client_size'
+          | 'potty_training'
+          | 'triggers'
+          | 'languages_at_home'
+          | 'parent_involvement'
+          | 'strengths'
+          | 'limitations'
         > & {
           street_address?: string | null
           state?: string | null
@@ -126,6 +154,20 @@ export type Database = {
           required_language?: string | null
           required_role?: string | null
           no_new_therapist?: boolean
+          behaviors?: string[] | null
+          behavior_severity?: string | null
+          communication_type?: string | null
+          receptive_language?: string | null
+          expressive_language?: string | null
+          socialization?: string | null
+          physical_contact_needs?: string | null
+          client_size?: string | null
+          potty_training?: string | null
+          triggers?: string | null
+          languages_at_home?: string | null
+          parent_involvement?: string | null
+          strengths?: string | null
+          limitations?: string | null
         }
         Update: Partial<Database['public']['Tables']['clients']['Insert']>
       }

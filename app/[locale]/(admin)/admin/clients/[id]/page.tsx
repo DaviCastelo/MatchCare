@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge'
 import { AvailabilityEditor } from '@/components/app/availability-editor'
 import { AddressFields } from '@/components/app/address-fields'
 import { getStates } from '@/app/actions/locations'
+import { ClinicalProfileFields } from '@/components/app/clinical-profile-fields'
+import { parseClinicalFields } from '@/lib/admin/clinical-fields'
 
 export default async function ClientDetailPage({
   params,
@@ -53,6 +55,7 @@ export default async function ClientDetailPage({
       required_language: (formData.get('required_language') as string) || null,
       required_role: rawReqRole && rawReqRole !== 'none' ? rawReqRole : null,
       no_new_therapist: formData.get('no_new_therapist') === 'on',
+      ...parseClinicalFields(formData),
       notes: formData.get('notes') as string || null,
     })
     redirect(`/${locale}/admin/clients`)
@@ -193,6 +196,11 @@ export default async function ClientDetailPage({
                 <input type="checkbox" name="no_new_therapist" defaultChecked={client.no_new_therapist} className="size-4 rounded border-gray-300" />
                 No new BI / therapist (exclude new hires)
               </label>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 space-y-3">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Clinical Profile</p>
+              <ClinicalProfileFields defaults={client} />
             </div>
             <Button type="submit" className="bg-teal-600 hover:bg-teal-700">{tc('save')}</Button>
           </form>
