@@ -11,6 +11,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { AddressFields } from '@/components/app/address-fields'
+import { getLocationOptions } from '@/app/actions/locations'
 
 export default async function NewClientPage({
   params,
@@ -23,6 +25,7 @@ export default async function NewClientPage({
 
   const supabase = await createSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
+  const locationOptions = await getLocationOptions()
 
   async function handleCreate(formData: FormData) {
     'use server'
@@ -103,28 +106,12 @@ export default async function NewClientPage({
                 <Label>{tc('language')}</Label>
                 <Input name="language" placeholder="e.g. Portuguese" required />
               </div>
-              <div className="col-span-2 space-y-2">
-                <Label>Street Address</Label>
-                <Input name="street_address" placeholder="123 Main St" />
-              </div>
-              <div className="space-y-2">
-                <Label>{tc('city')}</Label>
-                <Input name="city" required />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-2">
-                  <Label>State</Label>
-                  <Input name="state" defaultValue="CA" maxLength={2} />
-                </div>
-                <div className="space-y-2">
-                  <Label>ZIP</Label>
-                  <Input name="zip_code" required placeholder="95112" inputMode="numeric" pattern="\d{5}" title="5-digit ZIP" />
-                </div>
-              </div>
-              <div className="col-span-2 space-y-2">
-                <Label>School ZIP <span className="text-xs text-gray-400">(if session location is School)</span></Label>
-                <Input name="school_zip_code" placeholder="95112" inputMode="numeric" pattern="\d{5}" title="5-digit ZIP" />
-              </div>
+              <AddressFields
+                states={locationOptions.states}
+                cities={locationOptions.cities}
+                requireZip
+                includeSchoolZip
+              />
               <div className="space-y-2">
                 <Label>{t('parentPhone')}</Label>
                 <Input name="parent_phone" required />

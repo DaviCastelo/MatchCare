@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { AddressFields } from '@/components/app/address-fields'
+import { getLocationOptions } from '@/app/actions/locations'
 
 export default async function NewTherapistPage({
   params,
@@ -15,6 +17,7 @@ export default async function NewTherapistPage({
   const { locale } = await params
   const t = await getTranslations('therapists')
   const tc = await getTranslations('common')
+  const locationOptions = await getLocationOptions()
 
   async function handleCreate(formData: FormData) {
     'use server'
@@ -77,24 +80,11 @@ export default async function NewTherapistPage({
                 <Label>{tc('phone')}</Label>
                 <Input name="phone" required />
               </div>
-              <div className="col-span-2 space-y-2">
-                <Label>Street Address</Label>
-                <Input name="street_address" placeholder="123 Main St" />
-              </div>
-              <div className="space-y-2">
-                <Label>{tc('city')}</Label>
-                <Input name="city" required />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-2">
-                  <Label>State</Label>
-                  <Input name="state" defaultValue="CA" maxLength={2} />
-                </div>
-                <div className="space-y-2">
-                  <Label>ZIP</Label>
-                  <Input name="zip_code" required placeholder="95112" inputMode="numeric" pattern="\d{5}" title="5-digit ZIP" />
-                </div>
-              </div>
+              <AddressFields
+                states={locationOptions.states}
+                cities={locationOptions.cities}
+                requireZip
+              />
               <div className="space-y-2">
                 <Label>{tc('language')}</Label>
                 <Input name="language" placeholder="e.g. Portuguese" required />

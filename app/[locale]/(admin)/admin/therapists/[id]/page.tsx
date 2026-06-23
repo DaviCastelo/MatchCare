@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { AvailabilityEditor } from '@/components/app/availability-editor'
+import { AddressFields } from '@/components/app/address-fields'
+import { getLocationOptions } from '@/app/actions/locations'
 import { createClient } from '@/lib/supabase/server'
 import { CheckCircle, XCircle } from 'lucide-react'
 
@@ -22,6 +24,7 @@ export default async function TherapistDetailPage({
   const therapist = await getTherapist(id)
   const t = await getTranslations('therapists')
   const tc = await getTranslations('common')
+  const locationOptions = await getLocationOptions()
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -103,24 +106,14 @@ export default async function TherapistDetailPage({
                 <Label>{tc('language')}</Label>
                 <Input name="language" defaultValue={therapist.language} required />
               </div>
-              <div className="col-span-2 space-y-2">
-                <Label>Street Address</Label>
-                <Input name="street_address" defaultValue={therapist.street_address ?? ''} placeholder="123 Main St" />
-              </div>
-              <div className="space-y-2">
-                <Label>{tc('city')}</Label>
-                <Input name="city" defaultValue={therapist.city} required />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-2">
-                  <Label>State</Label>
-                  <Input name="state" defaultValue={therapist.state ?? 'CA'} maxLength={2} />
-                </div>
-                <div className="space-y-2">
-                  <Label>ZIP</Label>
-                  <Input name="zip_code" defaultValue={therapist.zip_code ?? ''} placeholder="95112" inputMode="numeric" pattern="\d{5}" title="5-digit ZIP" />
-                </div>
-              </div>
+              <AddressFields
+                states={locationOptions.states}
+                cities={locationOptions.cities}
+                defaultStreet={therapist.street_address}
+                defaultCity={therapist.city}
+                defaultState={therapist.state}
+                defaultZip={therapist.zip_code}
+              />
               <div className="space-y-2">
                 <Label>{t('experience')}</Label>
                 <Input name="years_of_experience" type="number" step="0.5" min={0} defaultValue={therapist.years_of_experience} required />

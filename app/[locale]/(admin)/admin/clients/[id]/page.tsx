@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { AvailabilityEditor } from '@/components/app/availability-editor'
+import { AddressFields } from '@/components/app/address-fields'
+import { getLocationOptions } from '@/app/actions/locations'
 
 export default async function ClientDetailPage({
   params,
@@ -19,6 +21,7 @@ export default async function ClientDetailPage({
   const client = await getClient(id)
   const t = await getTranslations('clients')
   const tc = await getTranslations('common')
+  const locationOptions = await getLocationOptions()
 
   async function handleUpdate(formData: FormData) {
     'use server'
@@ -78,28 +81,16 @@ export default async function ClientDetailPage({
                 <Label>{tc('language')}</Label>
                 <Input name="language" defaultValue={client.language} required />
               </div>
-              <div className="col-span-2 space-y-2">
-                <Label>Street Address</Label>
-                <Input name="street_address" defaultValue={client.street_address ?? ''} placeholder="123 Main St" />
-              </div>
-              <div className="space-y-2">
-                <Label>{tc('city')}</Label>
-                <Input name="city" defaultValue={client.city} required />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-2">
-                  <Label>State</Label>
-                  <Input name="state" defaultValue={client.state ?? 'CA'} maxLength={2} />
-                </div>
-                <div className="space-y-2">
-                  <Label>ZIP</Label>
-                  <Input name="zip_code" defaultValue={client.zip_code ?? ''} placeholder="95112" inputMode="numeric" pattern="\d{5}" title="5-digit ZIP" />
-                </div>
-              </div>
-              <div className="col-span-2 space-y-2">
-                <Label>School ZIP <span className="text-xs text-gray-400">(if session location is School)</span></Label>
-                <Input name="school_zip_code" defaultValue={client.school_zip_code ?? ''} placeholder="95112" inputMode="numeric" pattern="\d{5}" title="5-digit ZIP" />
-              </div>
+              <AddressFields
+                states={locationOptions.states}
+                cities={locationOptions.cities}
+                defaultStreet={client.street_address}
+                defaultCity={client.city}
+                defaultState={client.state}
+                defaultZip={client.zip_code}
+                defaultSchoolZip={client.school_zip_code}
+                includeSchoolZip
+              />
               <div className="space-y-2">
                 <Label>{t('parentPhone')}</Label>
                 <Input name="parent_phone" defaultValue={client.parent_phone} required />
