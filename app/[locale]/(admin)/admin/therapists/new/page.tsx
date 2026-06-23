@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { AddressFields } from '@/components/app/address-fields'
+import { getStates } from '@/app/actions/locations'
 
 export default async function NewTherapistPage({
   params,
@@ -15,6 +17,7 @@ export default async function NewTherapistPage({
   const { locale } = await params
   const t = await getTranslations('therapists')
   const tc = await getTranslations('common')
+  const states = await getStates()
 
   async function handleCreate(formData: FormData) {
     'use server'
@@ -45,6 +48,9 @@ export default async function NewTherapistPage({
       professional_score: Number(formData.get('professional_score')),
       sex: formData.get('sex') as 'Male' | 'Female',
       city: formData.get('city') as string,
+      street_address: (formData.get('street_address') as string) || null,
+      state: (formData.get('state') as string) || 'CA',
+      zip_code: ((formData.get('zip_code') as string) || '').trim() || null,
       language: formData.get('language') as string,
     })
 
@@ -74,10 +80,10 @@ export default async function NewTherapistPage({
                 <Label>{tc('phone')}</Label>
                 <Input name="phone" required />
               </div>
-              <div className="space-y-2">
-                <Label>{tc('city')}</Label>
-                <Input name="city" required />
-              </div>
+              <AddressFields
+                states={states}
+                requireZip
+              />
               <div className="space-y-2">
                 <Label>{tc('language')}</Label>
                 <Input name="language" placeholder="e.g. Portuguese" required />

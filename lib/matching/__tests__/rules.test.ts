@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
   checkScoreCompatibility,
-  checkCityMatch,
   checkAvailabilityOverlap,
   computeScore,
   computeOverlappingSlots,
@@ -39,33 +38,6 @@ describe('checkScoreCompatibility', () => {
   it('rejects therapist with score >= 5 when client score < 5', () => {
     const lowScoreClient = { ...baseClient, behavior_score: 4 }
     expect(checkScoreCompatibility(lowScoreClient, therapistA)).toBe(false)
-  })
-})
-
-// ─── checkCityMatch ───────────────────────────────────────────────────────────
-
-describe('checkCityMatch', () => {
-  it('always passes for Clinic sessions regardless of city', () => {
-    // therapistC is in Campinas, client in São Paulo, but it is Clinic → OK
-    expect(checkCityMatch(baseClient, therapistC)).toBe(true)
-  })
-
-  it('passes when cities match for Home sessions', () => {
-    const homeClient = { ...baseClient, preferred_session_location: 'Home' as const }
-    const sameCityTherapist = { ...therapistA, city: 'São Paulo' }
-    expect(checkCityMatch(homeClient, sameCityTherapist)).toBe(true)
-  })
-
-  it('rejects when cities differ for Home sessions', () => {
-    const homeClient = { ...baseClient, preferred_session_location: 'Home' as const }
-    // therapistC is in Campinas
-    expect(checkCityMatch(homeClient, therapistC)).toBe(false)
-  })
-
-  it('is case-insensitive', () => {
-    const homeClient = { ...baseClient, preferred_session_location: 'Home' as const }
-    const upperCaseCity = { ...therapistA, city: 'SÃO PAULO' }
-    expect(checkCityMatch(homeClient, upperCaseCity)).toBe(true)
   })
 })
 
@@ -155,18 +127,51 @@ describe('totalOverlapHours', () => {
 describe('computeScore', () => {
   it('adds +10 for language match', () => {
     const slots = computeOverlappingSlots(baseClient, therapistA)
-    const { score } = computeScore(baseClient, therapistA, slots, 0)
-    // language match (+10) + city Clinic match (+15) + hours bonus + proximity + load bonus
+    const { score } = computeScore(baseClient, therapistA, slots, 0, 2)
+    // language (+10) + proximity (+20 at 2mi) + hours + score-proximity + load
     expect(score).toBeGreaterThanOrEqual(10)
   })
 
-  it('adds +15 for same city on Clinic sessions', () => {
+  it('isolates the +10 language contribution', () => {
     const slots = computeOverlappingSlots(baseClient, therapistA)
     const differentLangTherapist = { ...therapistA, language: 'en' }
-    const { score: withCity } = computeScore(baseClient, therapistA, slots, 0)
-    const { score: noCity } = computeScore(baseClient, differentLangTherapist, slots, 0)
-    // difference should be +10 (language) since city is the same in both
-    expect(withCity - noCity).toBe(10)
+    const { score: sameLang } = computeScore(baseClient, therapistA, slots, 0, 2)
+    const { score: diffLang } = computeScore(baseClient, differentLangTherapist, slots, 0, 2)
+    // same distance in both → only language differs → +10
+    expect(sameLang - diffLang).toBe(10)
+  })
+
+  // ─── proximity (graded distance) ───
+  it('adds graded proximity points by distance (closer = more)', () => {
+    const slots = computeOverlappingSlots(baseClient, therapistA)
+    const near = computeScore(baseClient, therapistA, slots, 0, 2).score // +20
+    const mid = computeScore(baseClient, therapistA, slots, 0, 10).score // +10
+    const far = computeScore(baseClient, therapistA, slots, 0, 25).score // +0
+    expect(near - mid).toBe(10)
+    expect(mid - far).toBe(10)
+    expect(near).toBeGreaterThan(far)
+  })
+
+  it('flags MISSING_LOCATION and adds 0 proximity when distance is unknown', () => {
+    const slots = computeOverlappingSlots(baseClient, therapistA)
+    const { score: known } = computeScore(baseClient, therapistA, slots, 0, 2)
+    const { score: unknown, flags } = computeScore(baseClient, therapistA, slots, 0, null)
+    expect(flags).toContain('MISSING_LOCATION')
+    expect(known - unknown).toBe(20) // unknown loses the full proximity bonus
+  })
+
+  it('flags LONG_COMMUTE for a far-but-allowed Home session (> 12 mi)', () => {
+    const slots = computeOverlappingSlots(baseClient, therapistA)
+    const homeClient = { ...baseClient, preferred_session_location: 'Home' as const }
+    const { flags } = computeScore(homeClient, therapistA, slots, 0, 15)
+    expect(flags).toContain('LONG_COMMUTE')
+  })
+
+  it('does NOT flag LONG_COMMUTE for a close Home session', () => {
+    const slots = computeOverlappingSlots(baseClient, therapistA)
+    const homeClient = { ...baseClient, preferred_session_location: 'Home' as const }
+    const { flags } = computeScore(homeClient, therapistA, slots, 0, 5)
+    expect(flags).not.toContain('LONG_COMMUTE')
   })
 
   it('gives higher score to therapist with fewer current weekly hours (load bonus)', () => {

@@ -11,6 +11,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { AddressFields } from '@/components/app/address-fields'
+import { getStates } from '@/app/actions/locations'
 
 export default async function NewClientPage({
   params,
@@ -23,6 +25,7 @@ export default async function NewClientPage({
 
   const supabase = await createSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
+  const states = await getStates()
 
   async function handleCreate(formData: FormData) {
     'use server'
@@ -58,6 +61,10 @@ export default async function NewClientPage({
       sex: formData.get('sex') as 'Male' | 'Female',
       language: formData.get('language') as string,
       city: formData.get('city') as string,
+      street_address: (formData.get('street_address') as string) || null,
+      state: (formData.get('state') as string) || 'CA',
+      zip_code: ((formData.get('zip_code') as string) || '').trim() || null,
+      school_zip_code: ((formData.get('school_zip_code') as string) || '').trim() || null,
       preferred_session_location: formData.get('preferred_session_location') as 'Clinic' | 'School' | 'Home',
       weekly_hours: Number(formData.get('weekly_hours')),
       health_insurance: (formData.get('health_insurance') as string) || null,
@@ -96,13 +103,14 @@ export default async function NewClientPage({
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>{tc('city')}</Label>
-                <Input name="city" required />
-              </div>
-              <div className="space-y-2">
                 <Label>{tc('language')}</Label>
                 <Input name="language" placeholder="e.g. Portuguese" required />
               </div>
+              <AddressFields
+                states={states}
+                requireZip
+                includeSchoolZip
+              />
               <div className="space-y-2">
                 <Label>{t('parentPhone')}</Label>
                 <Input name="parent_phone" required />

@@ -1,21 +1,10 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
-import { cookies } from 'next/headers'
 import { Providers } from '@/components/app/providers'
+import { HtmlLang } from '@/components/app/html-lang'
 import { routing } from '@/i18n/routing'
 import { Toaster } from '@/components/ui/sonner'
-import '../globals.css'
-
-const inter = Inter({ subsets: ['latin'] })
-
-export const metadata: Metadata = {
-  title: 'MatchCare',
-  description: 'Smart Therapist-Client Allocation Platform',
-  icons: { icon: '/Modo-escuro.webp' },
-}
 
 export default async function LocaleLayout({
   children,
@@ -32,21 +21,13 @@ export default async function LocaleLayout({
 
   const messages = await getMessages()
 
-  // Read theme from cookie to apply class server-side (no flash)
-  const cookieStore = await cookies()
-  const themeCookie = cookieStore.get('theme')?.value ?? 'light'
-  const isDark = themeCookie === 'dark'
-
   return (
-    <html lang={locale} className={isDark ? 'dark' : ''} suppressHydrationWarning>
-      <body className={inter.className}>
-        <Providers>
-          <NextIntlClientProvider messages={messages}>
-            {children}
-            <Toaster richColors position="top-right" />
-          </NextIntlClientProvider>
-        </Providers>
-      </body>
-    </html>
+    <Providers>
+      <HtmlLang locale={locale} />
+      <NextIntlClientProvider messages={messages}>
+        {children}
+        <Toaster richColors position="top-right" />
+      </NextIntlClientProvider>
+    </Providers>
   )
 }

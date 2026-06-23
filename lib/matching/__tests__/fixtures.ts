@@ -15,6 +15,10 @@ export const baseClient: Client = {
   sex: 'Male',
   language: 'pt-BR',
   city: 'São Paulo',
+  street_address: null,
+  state: 'CA',
+  zip_code: '95112',
+  school_zip_code: null,
   preferred_session_location: 'Clinic',
   weekly_hours: 12,
   health_insurance: null,
@@ -41,6 +45,9 @@ export const therapistA: Therapist = {
   professional_score: 6,
   sex: 'Female',
   city: 'São Paulo',
+  street_address: null,
+  state: 'CA',
+  zip_code: '95112',
   language: 'pt-BR',
   last_score_review_date: null,
   score_reviewer_supervisor: null,
@@ -64,6 +71,9 @@ export const therapistB: Therapist = {
   professional_score: 6,
   sex: 'Male',
   city: 'São Paulo',
+  street_address: null,
+  state: 'CA',
+  zip_code: '95014',
   language: 'pt-BR',
   last_score_review_date: null,
   score_reviewer_supervisor: null,
@@ -78,7 +88,7 @@ export const therapistB: Therapist = {
 
 // ─── Therapist C ──────────────────────────────────────────────────────────────
 // Available Mon + Fri 09:00–17:00
-// Different city (disqualified for Home sessions, but eligible for Clinic)
+// Different city — only matters now via ZIP distance (no longer a hard rule by itself)
 export const therapistC: Therapist = {
   id: 'therapist-C',
   email: 'carla@clinic.com',
@@ -87,6 +97,9 @@ export const therapistC: Therapist = {
   professional_score: 7,
   sex: 'Female',
   city: 'Campinas',
+  street_address: null,
+  state: 'CA',
+  zip_code: '94306',
   language: 'pt-BR',
   last_score_review_date: null,
   score_reviewer_supervisor: null,
@@ -111,6 +124,9 @@ export const therapistDisqualified: Therapist = {
   professional_score: 3, // < 5, but client behavior_score = 6 > 5 → DISQUALIFIED
   sex: 'Male',
   city: 'São Paulo',
+  street_address: null,
+  state: 'CA',
+  zip_code: '95112',
   language: 'pt-BR',
   last_score_review_date: null,
   score_reviewer_supervisor: null,
@@ -132,6 +148,9 @@ export const therapistTooLittleOverlap: Therapist = {
   professional_score: 6,
   sex: 'Female',
   city: 'São Paulo',
+  street_address: null,
+  state: 'CA',
+  zip_code: '95112',
   language: 'pt-BR',
   last_score_review_date: null,
   score_reviewer_supervisor: null,
@@ -162,5 +181,6 @@ export function makeMatchResult(
     })),
     flags: [],
     currentWeeklyHours,
+    distanceMiles: null,
   }
 }

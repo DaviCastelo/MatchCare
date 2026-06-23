@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { AvailabilityEditor } from '@/components/app/availability-editor'
+import { AddressFields } from '@/components/app/address-fields'
+import { getStates } from '@/app/actions/locations'
 import { createClient } from '@/lib/supabase/server'
 import { CheckCircle, XCircle } from 'lucide-react'
 
@@ -22,6 +24,7 @@ export default async function TherapistDetailPage({
   const therapist = await getTherapist(id)
   const t = await getTranslations('therapists')
   const tc = await getTranslations('common')
+  const states = await getStates()
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -37,6 +40,9 @@ export default async function TherapistDetailPage({
       professional_score: Number(formData.get('professional_score')),
       sex: formData.get('sex') as 'Male' | 'Female',
       city: formData.get('city') as string,
+      street_address: (formData.get('street_address') as string) || null,
+      state: (formData.get('state') as string) || 'CA',
+      zip_code: ((formData.get('zip_code') as string) || '').trim() || null,
       language: formData.get('language') as string,
       last_score_review_date: formData.get('last_score_review_date') as string || null,
       score_reviewer_supervisor: formData.get('score_reviewer_supervisor') as string || null,
@@ -97,13 +103,16 @@ export default async function TherapistDetailPage({
                 <Input name="phone" defaultValue={therapist.phone} required />
               </div>
               <div className="space-y-2">
-                <Label>{tc('city')}</Label>
-                <Input name="city" defaultValue={therapist.city} required />
-              </div>
-              <div className="space-y-2">
                 <Label>{tc('language')}</Label>
                 <Input name="language" defaultValue={therapist.language} required />
               </div>
+              <AddressFields
+                states={states}
+                defaultStreet={therapist.street_address}
+                defaultCity={therapist.city}
+                defaultState={therapist.state}
+                defaultZip={therapist.zip_code}
+              />
               <div className="space-y-2">
                 <Label>{t('experience')}</Label>
                 <Input name="years_of_experience" type="number" step="0.5" min={0} defaultValue={therapist.years_of_experience} required />

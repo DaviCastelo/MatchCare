@@ -1,8 +1,11 @@
 import type { Therapist } from './therapist'
 
-export type MatchRuleName = 'scoreCompatibility' | 'cityMatch' | 'availabilityOverlap'
+export type MatchRuleName = 'scoreCompatibility' | 'proximity' | 'availabilityOverlap'
 
-export type MatchFlag = 'GENDER_SENSITIVITY_WARNING'
+export type MatchFlag =
+  | 'GENDER_SENSITIVITY_WARNING'
+  | 'MISSING_LOCATION' // client and/or therapist ZIP missing → distance unknown
+  | 'LONG_COMMUTE' // Home session with a far-but-allowed therapist (≤ 20 mi)
 
 export type Slot = {
   day_of_week: number
@@ -18,6 +21,7 @@ export type MatchResult = {
   overlappingSlots: Slot[]
   flags: MatchFlag[]
   currentWeeklyHours: number // hours already scheduled across all clients this week
+  distanceMiles: number | null // therapist ↔ session location; null when a ZIP is missing
 }
 
 export type DisqualifiedEntry = {

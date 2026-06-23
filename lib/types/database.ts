@@ -16,6 +16,19 @@ export type Database = {
         Insert: Omit<Database['public']['Tables']['profiles']['Row'], 'created_at'>
         Update: Partial<Database['public']['Tables']['profiles']['Insert']>
       }
+      // Nationwide ZIP centroid reference (US Census Gazetteer, public domain).
+      // Seeded once; `state` scopes by region but no per-state schema change is needed.
+      zip_codes: {
+        Row: {
+          zip: string
+          city: string | null
+          state: string | null
+          lat: number
+          lng: number
+        }
+        Insert: Database['public']['Tables']['zip_codes']['Row']
+        Update: Partial<Database['public']['Tables']['zip_codes']['Insert']>
+      }
       therapists: {
         Row: {
           id: string
@@ -25,13 +38,23 @@ export type Database = {
           professional_score: number
           sex: 'Male' | 'Female' | null
           city: string
+          street_address: string | null
+          state: string | null
+          zip_code: string | null
           language: string
           last_score_review_date: string | null
           score_reviewer_supervisor: string | null
           notes: string | null
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['therapists']['Row'], 'created_at'>
+        Insert: Omit<
+          Database['public']['Tables']['therapists']['Row'],
+          'created_at' | 'street_address' | 'state' | 'zip_code'
+        > & {
+          street_address?: string | null
+          state?: string | null
+          zip_code?: string | null
+        }
         Update: Partial<Database['public']['Tables']['therapists']['Insert']>
       }
       clients: {
@@ -46,6 +69,10 @@ export type Database = {
           sex: 'Male' | 'Female'
           language: string
           city: string
+          street_address: string | null
+          state: string | null
+          zip_code: string | null
+          school_zip_code: string | null
           preferred_session_location: 'Clinic' | 'School' | 'Home'
           weekly_hours: number
           health_insurance: string | null
@@ -53,7 +80,15 @@ export type Database = {
           created_by: string | null
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['clients']['Row'], 'id' | 'created_at'>
+        Insert: Omit<
+          Database['public']['Tables']['clients']['Row'],
+          'id' | 'created_at' | 'street_address' | 'state' | 'zip_code' | 'school_zip_code'
+        > & {
+          street_address?: string | null
+          state?: string | null
+          zip_code?: string | null
+          school_zip_code?: string | null
+        }
         Update: Partial<Database['public']['Tables']['clients']['Insert']>
       }
       therapist_availability: {
@@ -165,6 +200,14 @@ export type Database = {
         }
         Insert: Omit<Database['public']['Tables']['therapist_approval_requests']['Row'], 'id' | 'created_at'>
         Update: Partial<Database['public']['Tables']['therapist_approval_requests']['Insert']>
+      }
+      // View: distinct states present in zip_codes (read-only; powers the State dropdown).
+      zip_code_states: {
+        Row: {
+          state: string | null
+        }
+        Insert: Database['public']['Tables']['zip_code_states']['Row']
+        Update: Partial<Database['public']['Tables']['zip_code_states']['Row']>
       }
     }
   }

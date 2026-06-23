@@ -307,6 +307,7 @@ export function MatchTool({ clients }: { clients: Client[]; locale: string }) {
 
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       {result.therapist.city} · {result.therapist.language} · Score {result.therapist.professional_score}
+                      {result.distanceMiles != null && ` · ${result.distanceMiles.toFixed(1)} mi`}
                     </p>
 
                     <div className="flex items-center gap-2 mt-2">
@@ -341,6 +342,18 @@ export function MatchTool({ clients }: { clients: Client[]; locale: string }) {
                       <div className="flex items-center gap-1 mt-2 text-gray-500 dark:text-gray-400 text-xs">
                         <AlertTriangle className="w-3 h-3" />
                         {t('sexNotSet')}
+                      </div>
+                    )}
+                    {result.flags.includes('LONG_COMMUTE') && (
+                      <div className="flex items-center gap-1 mt-2 text-amber-600 dark:text-amber-400 text-xs">
+                        <AlertTriangle className="w-3 h-3" />
+                        Long commute (&gt; 12 mi)
+                      </div>
+                    )}
+                    {result.flags.includes('MISSING_LOCATION') && (
+                      <div className="flex items-center gap-1 mt-2 text-gray-500 dark:text-gray-400 text-xs">
+                        <AlertTriangle className="w-3 h-3" />
+                        No ZIP on file — distance unknown
                       </div>
                     )}
                   </button>

@@ -1,6 +1,11 @@
 import type { Client } from '@/lib/types/client'
 import type { Therapist } from '@/lib/types/therapist'
 import type { Slot, MatchFlag } from '@/lib/types/matching'
+import { proximityPoints, LONG_COMMUTE_MILES } from './geo'
+
+// ZIP code of the clinic — reference point for distance on `Clinic` sessions.
+// Operator-configurable; replace with the real clinic ZIP.
+export const CLINIC_ZIP = '95112'
 
 // Clinic operating hours: [day_of_week]: { open: 'HH:MM', close: 'HH:MM' }
 const CLINIC_HOURS: Record<number, { open: string; close: string } | null> = {
@@ -131,36 +136,33 @@ export function checkScoreCompatibility(client: Client, therapist: Therapist): b
   return client.behavior_score <= 5
 }
 
-export function checkCityMatch(client: Client, therapist: Therapist): boolean {
-  if (client.preferred_session_location === 'Home') {
-    return client.city.toLowerCase() === therapist.city.toLowerCase()
-  }
-  return true // city match is soft for Clinic/School
-}
-
 export function checkAvailabilityOverlap(client: Client, therapist: Therapist): boolean {
   const slots = computeOverlappingSlots(client, therapist)
   return totalOverlapHours(slots) >= 3
 }
 
 export type HardRule = {
-  name: 'scoreCompatibility' | 'cityMatch' | 'availabilityOverlap'
+  name: 'scoreCompatibility' | 'availabilityOverlap'
   check: (client: Client, therapist: Therapist) => boolean
 }
 
+// Pure (client, therapist) hard rules. The 'proximity' hard rule (block a Home
+// session beyond HOME_MAX_MILES) depends on ZIP distance, which the engine
+// supplies separately — it is applied in findEligibleTherapists, not here.
 export const hardRules: HardRule[] = [
   { name: 'scoreCompatibility', check: checkScoreCompatibility },
-  { name: 'cityMatch', check: checkCityMatch },
   { name: 'availabilityOverlap', check: checkAvailabilityOverlap },
 ]
 
 // ─── Soft Rules / Scoring ────────────────────────────────────────────────────
 
+// Max possible score = 75: language 10 + proximity 20 + hours 20 + score-proximity 10 + load 15.
 export function computeScore(
   client: Client,
   therapist: Therapist,
   slots: Slot[],
-  therapistCurrentHours = 0
+  therapistCurrentHours = 0,
+  distanceMiles: number | null = null
 ): { score: number; flags: MatchFlag[] } {
   let score = 0
   const flags: MatchFlag[] = []
@@ -168,12 +170,16 @@ export function computeScore(
   // Language match: +10
   if (client.language.toLowerCase() === therapist.language.toLowerCase()) score += 10
 
-  // Same city (non-Home sessions): +15
-  if (
-    client.preferred_session_location !== 'Home' &&
-    client.city.toLowerCase() === therapist.city.toLowerCase()
-  ) {
-    score += 15
+  // Geographic proximity (graded, max +20). Replaces the old binary "+15 same city".
+  // The score rises as the therapist gets closer to the session location and
+  // falls to 0 when far. Unknown distance contributes 0 and is flagged.
+  if (distanceMiles == null) {
+    flags.push('MISSING_LOCATION')
+  } else {
+    score += proximityPoints(distanceMiles)
+    if (client.preferred_session_location === 'Home' && distanceMiles > LONG_COMMUTE_MILES) {
+      flags.push('LONG_COMMUTE')
+    }
   }
 
   // Available hours (proportional, max +20)

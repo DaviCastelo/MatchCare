@@ -11,6 +11,8 @@ export type ClientListFilters = {
   location?: string
   language?: string
   city?: string
+  state?: string
+  zip?: string
 }
 
 export type TherapistListFilters = {
@@ -18,6 +20,8 @@ export type TherapistListFilters = {
   sex?: string
   language?: string
   city?: string
+  state?: string
+  zip?: string
 }
 
 function includes(haystack: string, needle: string): boolean {
@@ -46,6 +50,8 @@ export function filterClients(clients: Client[], filters: ClientListFilters): Cl
       return false
     if (filters.language && !includes(client.language, filters.language)) return false
     if (filters.city && !includes(client.city, filters.city)) return false
+    if (filters.state && !includes(client.state ?? '', filters.state)) return false
+    if (filters.zip && !includes(client.zip_code ?? '', filters.zip)) return false
 
     if (filters.q?.trim()) {
       const slots = availabilityText(client.availability)
@@ -60,6 +66,10 @@ export function filterClients(clients: Client[], filters: ClientListFilters): Cl
           client.sex,
           client.language,
           client.city,
+          client.street_address,
+          client.state,
+          client.zip_code,
+          client.school_zip_code,
           client.preferred_session_location,
           client.weekly_hours,
           client.health_insurance,
@@ -84,6 +94,8 @@ export function filterTherapists(therapists: Therapist[], filters: TherapistList
       return false
     if (filters.language && !includes(therapist.language, filters.language)) return false
     if (filters.city && !includes(therapist.city, filters.city)) return false
+    if (filters.state && !includes(therapist.state ?? '', filters.state)) return false
+    if (filters.zip && !includes(therapist.zip_code ?? '', filters.zip)) return false
 
     if (filters.q?.trim()) {
       const slots = availabilityText(therapist.availability)
@@ -97,6 +109,9 @@ export function filterTherapists(therapists: Therapist[], filters: TherapistList
           therapist.professional_score,
           therapist.sex,
           therapist.city,
+          therapist.street_address,
+          therapist.state,
+          therapist.zip_code,
           therapist.language,
           therapist.last_score_review_date,
           therapist.score_reviewer_supervisor,

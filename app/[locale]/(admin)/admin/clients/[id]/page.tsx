@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { AvailabilityEditor } from '@/components/app/availability-editor'
+import { AddressFields } from '@/components/app/address-fields'
+import { getStates } from '@/app/actions/locations'
 
 export default async function ClientDetailPage({
   params,
@@ -19,6 +21,7 @@ export default async function ClientDetailPage({
   const client = await getClient(id)
   const t = await getTranslations('clients')
   const tc = await getTranslations('common')
+  const states = await getStates()
 
   async function handleUpdate(formData: FormData) {
     'use server'
@@ -32,6 +35,10 @@ export default async function ClientDetailPage({
       sex: formData.get('sex') as 'Male' | 'Female',
       language: formData.get('language') as string,
       city: formData.get('city') as string,
+      street_address: (formData.get('street_address') as string) || null,
+      state: (formData.get('state') as string) || 'CA',
+      zip_code: ((formData.get('zip_code') as string) || '').trim() || null,
+      school_zip_code: ((formData.get('school_zip_code') as string) || '').trim() || null,
       preferred_session_location: formData.get('preferred_session_location') as 'Clinic' | 'School' | 'Home',
       weekly_hours: Number(formData.get('weekly_hours')),
       health_insurance: formData.get('health_insurance') as string || null,
@@ -71,13 +78,18 @@ export default async function ClientDetailPage({
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>{tc('city')}</Label>
-                <Input name="city" defaultValue={client.city} required />
-              </div>
-              <div className="space-y-2">
                 <Label>{tc('language')}</Label>
                 <Input name="language" defaultValue={client.language} required />
               </div>
+              <AddressFields
+                states={states}
+                defaultStreet={client.street_address}
+                defaultCity={client.city}
+                defaultState={client.state}
+                defaultZip={client.zip_code}
+                defaultSchoolZip={client.school_zip_code}
+                includeSchoolZip
+              />
               <div className="space-y-2">
                 <Label>{t('parentPhone')}</Label>
                 <Input name="parent_phone" defaultValue={client.parent_phone} required />

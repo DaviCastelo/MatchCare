@@ -33,6 +33,12 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# matchcare zip seed artifacts (small CA sample committed; cache, generated SQL,
+# and the large nationwide CSV are reproducible via build_zip_codes.py)
+/supabase/seed/.cache_US.zip
+/supabase/seed/zip_codes_*.sql
+/supabase/seed/zip_codes_ALL.csv
+
 # vercel
 .vercel
 

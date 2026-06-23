@@ -177,18 +177,24 @@ export function TherapistsAdminList({
     sex: searchParams.get('sex') ?? 'all',
     language: searchParams.get('language') ?? '',
     city: searchParams.get('city') ?? '',
+    state: searchParams.get('state') ?? '',
+    zip: searchParams.get('zip') ?? '',
   }
   const page = Number(searchParams.get('page') ?? '1') || 1
 
   const [draftQ, setDraftQ] = useState(filters.q)
   const [draftLanguage, setDraftLanguage] = useState(filters.language ?? '')
   const [draftCity, setDraftCity] = useState(filters.city ?? '')
+  const [draftState, setDraftState] = useState(filters.state ?? '')
+  const [draftZip, setDraftZip] = useState(filters.zip ?? '')
 
   function applyFilters() {
     updateParams({
       q: draftQ || null,
       language: draftLanguage || null,
       city: draftCity || null,
+      state: draftState || null,
+      zip: draftZip || null,
     })
   }
 
@@ -267,7 +273,9 @@ export function TherapistsAdminList({
     Boolean(filters.q) ||
     (filters.sex && filters.sex !== 'all') ||
     Boolean(filters.language) ||
-    Boolean(filters.city)
+    Boolean(filters.city) ||
+    Boolean(filters.state) ||
+    Boolean(filters.zip)
 
   return (
     <div className="space-y-4">
@@ -301,7 +309,9 @@ export function TherapistsAdminList({
                   setDraftQ('')
                   setDraftLanguage('')
                   setDraftCity('')
-                  updateParams({ q: null, sex: null, language: null, city: null })
+                  setDraftState('')
+                  setDraftZip('')
+                  updateParams({ q: null, sex: null, language: null, city: null, state: null, zip: null })
                 }}
                 className="gap-1"
               >
@@ -311,7 +321,7 @@ export function TherapistsAdminList({
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">{labels.sex}</Label>
               <Select value={filters.sex || 'all'} onValueChange={(v) => updateParams({ sex: v })}>
@@ -340,6 +350,24 @@ export function TherapistsAdminList({
                 onChange={(e) => setDraftCity(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
                 placeholder={labels.city}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">State</Label>
+              <Input
+                value={draftState}
+                onChange={(e) => setDraftState(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
+                placeholder="CA"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">ZIP</Label>
+              <Input
+                value={draftZip}
+                onChange={(e) => setDraftZip(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
+                placeholder="95112"
               />
             </div>
           </div>
