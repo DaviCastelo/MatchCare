@@ -15,6 +15,8 @@ import { AddressFields } from '@/components/app/address-fields'
 import { getStates } from '@/app/actions/locations'
 import { ClinicalProfileFields } from '@/components/app/clinical-profile-fields'
 import { parseClinicalFields } from '@/lib/admin/clinical-fields'
+import { OnboardingFields } from '@/components/app/onboarding-fields'
+import { parseOnboardingFields } from '@/lib/admin/onboarding'
 
 export default async function NewClientPage({
   params,
@@ -83,6 +85,7 @@ export default async function NewClientPage({
       required_role: rawReqRole && rawReqRole !== 'none' ? rawReqRole : null,
       no_new_therapist: formData.get('no_new_therapist') === 'on',
       ...parseClinicalFields(formData),
+      ...parseOnboardingFields(formData),
       notes: (formData.get('notes') as string) || null,
       parent_id: parentId,
       created_by: user?.id ?? null,
@@ -230,6 +233,13 @@ export default async function NewClientPage({
                 No new BI / therapist (exclude new hires)
               </label>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle className="text-base">Onboarding</CardTitle></CardHeader>
+          <CardContent>
+            <OnboardingFields />
           </CardContent>
         </Card>
 

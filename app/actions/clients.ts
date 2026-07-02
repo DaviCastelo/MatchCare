@@ -48,6 +48,17 @@ export async function updateClient(id: string, input: ClientUpdate): Promise<voi
   revalidatePath('/admin/clients')
 }
 
+export async function updateOnboardingStage(id: string, stage: string | null): Promise<void> {
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('clients')
+    .update({ onboarding_stage: stage } as never)
+    .eq('id', id)
+  if (error) throw error
+  revalidatePath('/admin/onboarding')
+  revalidatePath(`/admin/clients/${id}`)
+}
+
 export async function deleteClient(id: string): Promise<void> {
   const supabase = createAdminClient()
   const { error } = await supabase.from('clients').delete().eq('id', id)

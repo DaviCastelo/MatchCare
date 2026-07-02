@@ -108,6 +108,14 @@ export type Database = {
           park_consent: boolean
           survey: string | null
           parent_training_hours: number | null
+          onboarding_stage: string | null
+          referral_date: string | null
+          intake_date: string | null
+          assessment_date: string | null
+          projected_start_date: string | null
+          actual_start_date: string | null
+          onboarding_owner: string | null
+          onboarding_notes: string | null
           notes: string | null
           created_by: string | null
           created_at: string
@@ -146,6 +154,14 @@ export type Database = {
           | 'park_consent'
           | 'survey'
           | 'parent_training_hours'
+          | 'onboarding_stage'
+          | 'referral_date'
+          | 'intake_date'
+          | 'assessment_date'
+          | 'projected_start_date'
+          | 'actual_start_date'
+          | 'onboarding_owner'
+          | 'onboarding_notes'
         > & {
           street_address?: string | null
           state?: string | null
@@ -177,6 +193,14 @@ export type Database = {
           park_consent?: boolean
           survey?: string | null
           parent_training_hours?: number | null
+          onboarding_stage?: string | null
+          referral_date?: string | null
+          intake_date?: string | null
+          assessment_date?: string | null
+          projected_start_date?: string | null
+          actual_start_date?: string | null
+          onboarding_owner?: string | null
+          onboarding_notes?: string | null
         }
         Update: Partial<Database['public']['Tables']['clients']['Insert']>
       }

@@ -65,6 +65,7 @@
   "nav": {
     "dashboard": "Panel",
     "clients": "Clientes",
+    "onboarding": "Admisión",
     "therapists": "Terapeutas",
     "match": "Herramienta de Match",
     "sessions": "Sesiones",
