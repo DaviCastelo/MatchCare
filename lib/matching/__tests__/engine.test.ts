@@ -77,6 +77,22 @@ describe('findEligibleTherapists', () => {
   })
 })
 
+// ─── findEligibleTherapists — city gate ──────────────────────────────────────
+
+describe('findEligibleTherapists — city gate', () => {
+  it('disqualifies a therapist in a different city (failedRule sameCity)', () => {
+    // therapistC is Campinas; baseClient is São Paulo
+    const result = findEligibleTherapists(baseClient, [therapistC], {})
+    expect(result.eligible).toHaveLength(0)
+    expect(result.disqualified[0].failedRule).toBe('sameCity')
+  })
+
+  it('keeps a same-city therapist even when ZIP distance is unknown', () => {
+    const result = findEligibleTherapists(baseClient, [therapistA], {}, {}, { 'therapist-A': null })
+    expect(result.eligible.map((r) => r.therapist.id)).toContain('therapist-A')
+  })
+})
+
 // ─── findEligibleTherapists — requirements ───────────────────────────────────
 
 describe('findEligibleTherapists — requirements', () => {

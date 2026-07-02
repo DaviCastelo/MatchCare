@@ -6,6 +6,7 @@ import {
   checkRequiredLanguage,
   checkRequiredRole,
   checkNoNewTherapist,
+  checkSameCity,
   therapistSpeaks,
   computeScore,
   computeOverlappingSlots,
@@ -106,6 +107,28 @@ describe('match requirements', () => {
     expect(therapistSpeaks({ ...therapistA, language: 'English', languages: ['Spanish'] }, 'spanish')).toBe(true)
     expect(therapistSpeaks({ ...therapistA, language: 'English', languages: null }, 'english')).toBe(true)
     expect(therapistSpeaks({ ...therapistA, language: 'English', languages: ['Spanish'] }, 'mandarin')).toBe(false)
+  })
+})
+
+// ─── checkSameCity ────────────────────────────────────────────────────────────
+
+describe('checkSameCity', () => {
+  it('passes when client and therapist share a city', () => {
+    // baseClient and therapistA are both São Paulo
+    expect(checkSameCity(baseClient, therapistA)).toBe(true)
+  })
+
+  it('is case- and whitespace-insensitive', () => {
+    expect(checkSameCity(baseClient, { ...therapistA, city: ' SÃO  PAULO ' })).toBe(true)
+  })
+
+  it('fails when cities differ (even with a nearby ZIP)', () => {
+    // therapistC is Campinas
+    expect(checkSameCity(baseClient, therapistC)).toBe(false)
+  })
+
+  it('fails when the therapist city is blank', () => {
+    expect(checkSameCity(baseClient, { ...therapistA, city: '' })).toBe(false)
   })
 })
 

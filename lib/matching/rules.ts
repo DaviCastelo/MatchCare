@@ -174,8 +174,23 @@ export function checkNoNewTherapist(client: Client, therapist: Therapist): boole
   return !therapist.is_new_hire
 }
 
+function normalizeCity(s: string | null | undefined): string {
+  return (s ?? '').trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+// Same-city gate: a therapist must be based in the client's city to be eligible.
+// Compares the free-text city case-/whitespace-insensitively, so it works even
+// when either side has no ZIP code. ZIP distance does NOT relax this — it only
+// refines the score among same-city therapists (see computeScore/proximityPoints).
+// A therapist with a blank city never matches.
+export function checkSameCity(client: Client, therapist: Therapist): boolean {
+  const c = normalizeCity(client.city)
+  return c !== '' && c === normalizeCity(therapist.city)
+}
+
 export type HardRule = {
   name:
+    | 'sameCity'
     | 'scoreCompatibility'
     | 'availabilityOverlap'
     | 'requiredSex'
@@ -189,6 +204,7 @@ export type HardRule = {
 // session beyond HOME_MAX_MILES) depends on ZIP distance, which the engine
 // supplies separately — it is applied in findEligibleTherapists, not here.
 export const hardRules: HardRule[] = [
+  { name: 'sameCity', check: checkSameCity },
   { name: 'scoreCompatibility', check: checkScoreCompatibility },
   { name: 'requiredSex', check: checkRequiredSex },
   { name: 'requiredLanguage', check: checkRequiredLanguage },

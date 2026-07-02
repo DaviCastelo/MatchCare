@@ -1,6 +1,7 @@
 import type { Therapist } from './therapist'
 
 export type MatchRuleName =
+  | 'sameCity'
   | 'scoreCompatibility'
   | 'proximity'
   | 'availabilityOverlap'
