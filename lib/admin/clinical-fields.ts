@@ -8,6 +8,13 @@ const txt = (v: FormDataEntryValue | null): string | null => {
   return s || null
 }
 
+const num = (v: FormDataEntryValue | null): number | null => {
+  const s = typeof v === 'string' ? v.trim() : ''
+  if (!s) return null
+  const n = Number(s)
+  return Number.isFinite(n) ? n : null
+}
+
 // Extracts the structured clinical-profile fields from a client form submission.
 // Shared by the create and edit client actions.
 export function parseClinicalFields(fd: FormData): Partial<ClientUpdate> {
@@ -27,5 +34,8 @@ export function parseClinicalFields(fd: FormData): Partial<ClientUpdate> {
     parent_involvement: txt(fd.get('parent_involvement')),
     strengths: txt(fd.get('strengths')),
     limitations: txt(fd.get('limitations')),
+    park_consent: fd.get('park_consent') === 'on',
+    survey: txt(fd.get('survey')),
+    parent_training_hours: num(fd.get('parent_training_hours')),
   }
 }

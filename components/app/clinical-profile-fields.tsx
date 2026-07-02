@@ -58,6 +58,9 @@ export type ClinicalDefaults = {
   parent_involvement?: string | null
   strengths?: string | null
   limitations?: string | null
+  park_consent?: boolean
+  survey?: string | null
+  parent_training_hours?: number | null
 }
 
 /**
@@ -116,6 +119,27 @@ export function ClinicalProfileFields({ defaults = {} }: { defaults?: ClinicalDe
       <div className="space-y-2">
         <Label>Limitations</Label>
         <Textarea name="limitations" defaultValue={d.limitations ?? ''} rows={2} />
+      </div>
+
+      <div className="col-span-2 mt-1 pt-3 border-t border-gray-100 dark:border-gray-800">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Consents &amp; Parent Training</p>
+      </div>
+      <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 pt-1">
+        <input
+          type="checkbox"
+          name="park_consent"
+          defaultChecked={d.park_consent ?? false}
+          className="size-4 rounded border-gray-300"
+        />
+        Park / outing consent on file
+      </label>
+      <div className="space-y-2">
+        <Label>Parent training hours (target)</Label>
+        <Input name="parent_training_hours" type="number" min={0} step={0.25} defaultValue={d.parent_training_hours ?? ''} />
+      </div>
+      <div className="col-span-2 space-y-2">
+        <Label>Survey</Label>
+        <Textarea name="survey" defaultValue={d.survey ?? ''} rows={2} placeholder="Intake / satisfaction survey status or notes" />
       </div>
     </div>
   )

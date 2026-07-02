@@ -13,6 +13,9 @@ import { AddressFields } from '@/components/app/address-fields'
 import { getStates } from '@/app/actions/locations'
 import { ClinicalProfileFields } from '@/components/app/clinical-profile-fields'
 import { parseClinicalFields } from '@/lib/admin/clinical-fields'
+import { getParentTrainingLog, getEligibilityChecks } from '@/app/actions/client-logs'
+import { ParentTrainingLog } from '@/components/app/parent-training-log'
+import { EligibilityLog } from '@/components/app/eligibility-log'
 
 export default async function ClientDetailPage({
   params,
@@ -24,6 +27,8 @@ export default async function ClientDetailPage({
   const t = await getTranslations('clients')
   const tc = await getTranslations('common')
   const states = await getStates()
+  const trainingLog = await getParentTrainingLog(id)
+  const eligibilityChecks = await getEligibilityChecks(id)
 
   async function handleUpdate(formData: FormData) {
     'use server'
@@ -212,6 +217,14 @@ export default async function ClientDetailPage({
         entityType="client"
         initialSlots={client.availability ?? []}
       />
+
+      <ParentTrainingLog
+        clientId={client.id}
+        entries={trainingLog}
+        targetHours={client.parent_training_hours}
+      />
+
+      <EligibilityLog clientId={client.id} checks={eligibilityChecks} />
     </div>
   )
 }

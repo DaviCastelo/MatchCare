@@ -8,3 +8,8 @@ export type ClientSlot = Database['public']['Tables']['client_availability']['Ro
 
 export type ClientInsert = Database['public']['Tables']['clients']['Insert']
 export type ClientUpdate = Database['public']['Tables']['clients']['Update']
+
+export type ParentTrainingEntry = Database['public']['Tables']['parent_training_log']['Row']
+export type ParentTrainingInsert = Database['public']['Tables']['parent_training_log']['Insert']
+export type EligibilityCheck = Database['public']['Tables']['eligibility_checks']['Row']
+export type EligibilityCheckInsert = Database['public']['Tables']['eligibility_checks']['Insert']

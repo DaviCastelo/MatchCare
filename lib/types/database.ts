@@ -105,6 +105,9 @@ export type Database = {
           parent_involvement: string | null
           strengths: string | null
           limitations: string | null
+          park_consent: boolean
+          survey: string | null
+          parent_training_hours: number | null
           notes: string | null
           created_by: string | null
           created_at: string
@@ -140,6 +143,9 @@ export type Database = {
           | 'parent_involvement'
           | 'strengths'
           | 'limitations'
+          | 'park_consent'
+          | 'survey'
+          | 'parent_training_hours'
         > & {
           street_address?: string | null
           state?: string | null
@@ -168,8 +174,61 @@ export type Database = {
           parent_involvement?: string | null
           strengths?: string | null
           limitations?: string | null
+          park_consent?: boolean
+          survey?: string | null
+          parent_training_hours?: number | null
         }
         Update: Partial<Database['public']['Tables']['clients']['Insert']>
+      }
+      parent_training_log: {
+        Row: {
+          id: string
+          client_id: string
+          session_date: string
+          hours: number
+          topic: string | null
+          provided_by: string | null
+          notes: string | null
+          created_by: string | null
+          created_at: string
+        }
+        Insert: Omit<
+          Database['public']['Tables']['parent_training_log']['Row'],
+          'id' | 'created_at' | 'hours' | 'topic' | 'provided_by' | 'notes' | 'created_by'
+        > & {
+          hours?: number
+          topic?: string | null
+          provided_by?: string | null
+          notes?: string | null
+          created_by?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['parent_training_log']['Insert']>
+      }
+      eligibility_checks: {
+        Row: {
+          id: string
+          client_id: string
+          check_month: string
+          status: string
+          reference_no: string | null
+          verified_by: string | null
+          verified_on: string | null
+          notes: string | null
+          created_by: string | null
+          created_at: string
+        }
+        Insert: Omit<
+          Database['public']['Tables']['eligibility_checks']['Row'],
+          'id' | 'created_at' | 'status' | 'reference_no' | 'verified_by' | 'verified_on' | 'notes' | 'created_by'
+        > & {
+          status?: string
+          reference_no?: string | null
+          verified_by?: string | null
+          verified_on?: string | null
+          notes?: string | null
+          created_by?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['eligibility_checks']['Insert']>
       }
       therapist_availability: {
         Row: {
