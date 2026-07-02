@@ -12,6 +12,7 @@ import {
   UserCheck,
   Shuffle,
   Calendar,
+  ClipboardList,
   RefreshCw,
   User,
   Bell,
@@ -147,6 +148,7 @@ export function AdminSidebar({ locale }: { locale: string }) {
   const items: NavItem[] = [
     { label: t('dashboard'), href: `/${locale}/admin/dashboard`, icon: <LayoutDashboard className="w-4 h-4" /> },
     { label: t('clients'), href: `/${locale}/admin/clients`, icon: <Users className="w-4 h-4" /> },
+    { label: t('onboarding'), href: `/${locale}/admin/onboarding`, icon: <ClipboardList className="w-4 h-4" /> },
     { label: t('therapists'), href: `/${locale}/admin/therapists`, icon: <UserCheck className="w-4 h-4" /> },
     { label: t('match'), href: `/${locale}/admin/match`, icon: <Shuffle className="w-4 h-4" /> },
     { label: t('sessions'), href: `/${locale}/admin/sessions`, icon: <Calendar className="w-4 h-4" /> },

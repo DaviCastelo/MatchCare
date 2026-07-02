@@ -34,6 +34,10 @@ export default async function TherapistDetailPage({
   async function handleUpdate(formData: FormData) {
     'use server'
     const { locale, id } = await params
+    const languages = ((formData.get('languages') as string) || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
     await updateTherapist(id, {
       phone: formData.get('phone') as string,
       years_of_experience: Number(formData.get('years_of_experience')),
@@ -44,6 +48,9 @@ export default async function TherapistDetailPage({
       state: (formData.get('state') as string) || 'CA',
       zip_code: ((formData.get('zip_code') as string) || '').trim() || null,
       language: formData.get('language') as string,
+      languages: languages.length ? languages : null,
+      role: (formData.get('role') as string) || 'BI',
+      is_new_hire: formData.get('is_new_hire') === 'on',
       last_score_review_date: formData.get('last_score_review_date') as string || null,
       score_reviewer_supervisor: formData.get('score_reviewer_supervisor') as string || null,
       notes: formData.get('notes') as string || null,
@@ -131,6 +138,27 @@ export default async function TherapistDetailPage({
                 <Label>{t('professionalScore')} (1-9)</Label>
                 <Input name="professional_score" type="number" min={1} max={9} defaultValue={therapist.professional_score} required />
               </div>
+              <div className="space-y-2">
+                <Label>Role</Label>
+                <Select name="role" defaultValue={therapist.role ?? 'BI'}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="BCBA">BCBA</SelectItem>
+                    <SelectItem value="Supervisor">Supervisor</SelectItem>
+                    <SelectItem value="Mid-Level">Mid-Level</SelectItem>
+                    <SelectItem value="BI">BI</SelectItem>
+                    <SelectItem value="RBT">RBT</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label>Other Languages <span className="text-xs text-gray-400">(comma-separated)</span></Label>
+                <Input name="languages" defaultValue={(therapist.languages ?? []).join(', ')} placeholder="Spanish, Mandarin" />
+              </div>
+              <label className="col-span-2 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <input type="checkbox" name="is_new_hire" defaultChecked={therapist.is_new_hire} className="size-4 rounded border-gray-300" />
+                New hire (excluded for clients marked “no new BI”)
+              </label>
               <div className="space-y-2">
                 <Label>{t('lastReview')}</Label>
                 <Input name="last_score_review_date" type="date" defaultValue={therapist.last_score_review_date ?? ''} />

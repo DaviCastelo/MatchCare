@@ -42,6 +42,9 @@ export type Database = {
           state: string | null
           zip_code: string | null
           language: string
+          languages: string[] | null
+          role: string | null
+          is_new_hire: boolean
           last_score_review_date: string | null
           score_reviewer_supervisor: string | null
           notes: string | null
@@ -49,11 +52,14 @@ export type Database = {
         }
         Insert: Omit<
           Database['public']['Tables']['therapists']['Row'],
-          'created_at' | 'street_address' | 'state' | 'zip_code'
+          'created_at' | 'street_address' | 'state' | 'zip_code' | 'languages' | 'role' | 'is_new_hire'
         > & {
           street_address?: string | null
           state?: string | null
           zip_code?: string | null
+          languages?: string[] | null
+          role?: string | null
+          is_new_hire?: boolean
         }
         Update: Partial<Database['public']['Tables']['therapists']['Insert']>
       }
@@ -76,20 +82,177 @@ export type Database = {
           preferred_session_location: 'Clinic' | 'School' | 'Home'
           weekly_hours: number
           health_insurance: string | null
+          dob: string | null
+          auth_exp_date: string | null
+          two_to_one_eligible: boolean
+          assigned_bcba: string | null
+          assigned_supervisor: string | null
+          required_sex: 'Male' | 'Female' | null
+          required_language: string | null
+          required_role: string | null
+          no_new_therapist: boolean
+          behaviors: string[] | null
+          behavior_severity: string | null
+          communication_type: string | null
+          receptive_language: string | null
+          expressive_language: string | null
+          socialization: string | null
+          physical_contact_needs: string | null
+          client_size: string | null
+          potty_training: string | null
+          triggers: string | null
+          languages_at_home: string | null
+          parent_involvement: string | null
+          strengths: string | null
+          limitations: string | null
+          park_consent: boolean
+          survey: string | null
+          parent_training_hours: number | null
+          onboarding_stage: string | null
+          referral_date: string | null
+          intake_date: string | null
+          assessment_date: string | null
+          projected_start_date: string | null
+          actual_start_date: string | null
+          onboarding_owner: string | null
+          onboarding_notes: string | null
           notes: string | null
           created_by: string | null
           created_at: string
         }
         Insert: Omit<
           Database['public']['Tables']['clients']['Row'],
-          'id' | 'created_at' | 'street_address' | 'state' | 'zip_code' | 'school_zip_code'
+          | 'id'
+          | 'created_at'
+          | 'street_address'
+          | 'state'
+          | 'zip_code'
+          | 'school_zip_code'
+          | 'dob'
+          | 'auth_exp_date'
+          | 'two_to_one_eligible'
+          | 'assigned_bcba'
+          | 'assigned_supervisor'
+          | 'required_sex'
+          | 'required_language'
+          | 'required_role'
+          | 'no_new_therapist'
+          | 'behaviors'
+          | 'behavior_severity'
+          | 'communication_type'
+          | 'receptive_language'
+          | 'expressive_language'
+          | 'socialization'
+          | 'physical_contact_needs'
+          | 'client_size'
+          | 'potty_training'
+          | 'triggers'
+          | 'languages_at_home'
+          | 'parent_involvement'
+          | 'strengths'
+          | 'limitations'
+          | 'park_consent'
+          | 'survey'
+          | 'parent_training_hours'
+          | 'onboarding_stage'
+          | 'referral_date'
+          | 'intake_date'
+          | 'assessment_date'
+          | 'projected_start_date'
+          | 'actual_start_date'
+          | 'onboarding_owner'
+          | 'onboarding_notes'
         > & {
           street_address?: string | null
           state?: string | null
           zip_code?: string | null
           school_zip_code?: string | null
+          dob?: string | null
+          auth_exp_date?: string | null
+          two_to_one_eligible?: boolean
+          assigned_bcba?: string | null
+          assigned_supervisor?: string | null
+          required_sex?: 'Male' | 'Female' | null
+          required_language?: string | null
+          required_role?: string | null
+          no_new_therapist?: boolean
+          behaviors?: string[] | null
+          behavior_severity?: string | null
+          communication_type?: string | null
+          receptive_language?: string | null
+          expressive_language?: string | null
+          socialization?: string | null
+          physical_contact_needs?: string | null
+          client_size?: string | null
+          potty_training?: string | null
+          triggers?: string | null
+          languages_at_home?: string | null
+          parent_involvement?: string | null
+          strengths?: string | null
+          limitations?: string | null
+          park_consent?: boolean
+          survey?: string | null
+          parent_training_hours?: number | null
+          onboarding_stage?: string | null
+          referral_date?: string | null
+          intake_date?: string | null
+          assessment_date?: string | null
+          projected_start_date?: string | null
+          actual_start_date?: string | null
+          onboarding_owner?: string | null
+          onboarding_notes?: string | null
         }
         Update: Partial<Database['public']['Tables']['clients']['Insert']>
+      }
+      parent_training_log: {
+        Row: {
+          id: string
+          client_id: string
+          session_date: string
+          hours: number
+          topic: string | null
+          provided_by: string | null
+          notes: string | null
+          created_by: string | null
+          created_at: string
+        }
+        Insert: Omit<
+          Database['public']['Tables']['parent_training_log']['Row'],
+          'id' | 'created_at' | 'hours' | 'topic' | 'provided_by' | 'notes' | 'created_by'
+        > & {
+          hours?: number
+          topic?: string | null
+          provided_by?: string | null
+          notes?: string | null
+          created_by?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['parent_training_log']['Insert']>
+      }
+      eligibility_checks: {
+        Row: {
+          id: string
+          client_id: string
+          check_month: string
+          status: string
+          reference_no: string | null
+          verified_by: string | null
+          verified_on: string | null
+          notes: string | null
+          created_by: string | null
+          created_at: string
+        }
+        Insert: Omit<
+          Database['public']['Tables']['eligibility_checks']['Row'],
+          'id' | 'created_at' | 'status' | 'reference_no' | 'verified_by' | 'verified_on' | 'notes' | 'created_by'
+        > & {
+          status?: string
+          reference_no?: string | null
+          verified_by?: string | null
+          verified_on?: string | null
+          notes?: string | null
+          created_by?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['eligibility_checks']['Insert']>
       }
       therapist_availability: {
         Row: {

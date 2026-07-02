@@ -65,6 +65,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "clients": "Clients",
+    "onboarding": "Onboarding",
     "therapists": "Therapists",
     "match": "Match Tool",
     "sessions": "Sessions",

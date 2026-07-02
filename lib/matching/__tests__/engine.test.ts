@@ -77,6 +77,41 @@ describe('findEligibleTherapists', () => {
   })
 })
 
+// ─── findEligibleTherapists — city gate ──────────────────────────────────────
+
+describe('findEligibleTherapists — city gate', () => {
+  it('disqualifies a therapist in a different city (failedRule sameCity)', () => {
+    // therapistC is Campinas; baseClient is São Paulo
+    const result = findEligibleTherapists(baseClient, [therapistC], {})
+    expect(result.eligible).toHaveLength(0)
+    expect(result.disqualified[0].failedRule).toBe('sameCity')
+  })
+
+  it('keeps a same-city therapist even when ZIP distance is unknown', () => {
+    const result = findEligibleTherapists(baseClient, [therapistA], {}, {}, { 'therapist-A': null })
+    expect(result.eligible.map((r) => r.therapist.id)).toContain('therapist-A')
+  })
+})
+
+// ─── findEligibleTherapists — requirements ───────────────────────────────────
+
+describe('findEligibleTherapists — requirements', () => {
+  it('disqualifies on requiredSex mismatch', () => {
+    // therapistA is Female; require Male → disqualified
+    const client = { ...baseClient, required_sex: 'Male' as const }
+    const result = findEligibleTherapists(client, [therapistA], {})
+    expect(result.eligible).toHaveLength(0)
+    expect(result.disqualified[0].failedRule).toBe('requiredSex')
+  })
+
+  it('disqualifies a new hire when the client is flagged no_new_therapist', () => {
+    const client = { ...baseClient, no_new_therapist: true }
+    const newHire = { ...therapistA, is_new_hire: true }
+    const result = findEligibleTherapists(client, [newHire], {})
+    expect(result.disqualified.some((d) => d.failedRule === 'noNewTherapist')).toBe(true)
+  })
+})
+
 // ─── findEligibleTherapists — proximity ──────────────────────────────────────
 
 describe('findEligibleTherapists — proximity', () => {

@@ -141,8 +141,62 @@ export function checkAvailabilityOverlap(client: Client, therapist: Therapist): 
   return totalOverlapHours(slots) >= 3
 }
 
+// All languages a therapist can deliver sessions in (primary `language` + `languages[]`).
+export function therapistLanguages(therapist: Therapist): string[] {
+  const langs = (therapist.languages ?? []).map((l) => l.toLowerCase())
+  if (therapist.language) langs.push(therapist.language.toLowerCase())
+  return langs
+}
+
+export function therapistSpeaks(therapist: Therapist, language: string): boolean {
+  return therapistLanguages(therapist).includes(language.trim().toLowerCase())
+}
+
+// Family/clinical requirements (the spreadsheet's "Type of BI" notes). Each is a
+// no-op unless the admin actually set the requirement on the client.
+export function checkRequiredSex(client: Client, therapist: Therapist): boolean {
+  if (!client.required_sex) return true
+  return therapist.sex === client.required_sex
+}
+
+export function checkRequiredLanguage(client: Client, therapist: Therapist): boolean {
+  if (!client.required_language) return true
+  return therapistSpeaks(therapist, client.required_language)
+}
+
+export function checkRequiredRole(client: Client, therapist: Therapist): boolean {
+  if (!client.required_role) return true
+  return (therapist.role ?? '').toLowerCase() === client.required_role.toLowerCase()
+}
+
+export function checkNoNewTherapist(client: Client, therapist: Therapist): boolean {
+  if (!client.no_new_therapist) return true
+  return !therapist.is_new_hire
+}
+
+function normalizeCity(s: string | null | undefined): string {
+  return (s ?? '').trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+// Same-city gate: a therapist must be based in the client's city to be eligible.
+// Compares the free-text city case-/whitespace-insensitively, so it works even
+// when either side has no ZIP code. ZIP distance does NOT relax this — it only
+// refines the score among same-city therapists (see computeScore/proximityPoints).
+// A therapist with a blank city never matches.
+export function checkSameCity(client: Client, therapist: Therapist): boolean {
+  const c = normalizeCity(client.city)
+  return c !== '' && c === normalizeCity(therapist.city)
+}
+
 export type HardRule = {
-  name: 'scoreCompatibility' | 'availabilityOverlap'
+  name:
+    | 'sameCity'
+    | 'scoreCompatibility'
+    | 'availabilityOverlap'
+    | 'requiredSex'
+    | 'requiredLanguage'
+    | 'requiredRole'
+    | 'noNewTherapist'
   check: (client: Client, therapist: Therapist) => boolean
 }
 
@@ -150,7 +204,12 @@ export type HardRule = {
 // session beyond HOME_MAX_MILES) depends on ZIP distance, which the engine
 // supplies separately — it is applied in findEligibleTherapists, not here.
 export const hardRules: HardRule[] = [
+  { name: 'sameCity', check: checkSameCity },
   { name: 'scoreCompatibility', check: checkScoreCompatibility },
+  { name: 'requiredSex', check: checkRequiredSex },
+  { name: 'requiredLanguage', check: checkRequiredLanguage },
+  { name: 'requiredRole', check: checkRequiredRole },
+  { name: 'noNewTherapist', check: checkNoNewTherapist },
   { name: 'availabilityOverlap', check: checkAvailabilityOverlap },
 ]
 
@@ -167,8 +226,8 @@ export function computeScore(
   let score = 0
   const flags: MatchFlag[] = []
 
-  // Language match: +10
-  if (client.language.toLowerCase() === therapist.language.toLowerCase()) score += 10
+  // Language match: +10 (any language the therapist can deliver in)
+  if (therapistSpeaks(therapist, client.language)) score += 10
 
   // Geographic proximity (graded, max +20). Replaces the old binary "+15 same city".
   // The score rises as the therapist gets closer to the session location and
